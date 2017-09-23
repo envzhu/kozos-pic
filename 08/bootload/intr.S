@@ -5,30 +5,35 @@
 .global intr_syscall
 
 intr_syscall:
+
+
 rdpgpr  $sp, $sp
 mfc0    $k0, $13        /* read CAUSE register */
 mfc0    $k1, $14        /* read EPC (Exception Program Counter) register */
-addiu   $sp, $sp, -128  /* 30 (!) words space on stack */
-sw      $k1, 120($sp)   /* save EPC (Exception Program Counter) on stack */
+addiu   $sp, $sp, -140  /* 30 (!) words space on stack */
+addiu   $k1, 4
+sw      $k1, 132($sp)   /* save EPC (Exception Program Counter) on stack */
 mfc0    $k1, $12        /* read STATUS register */
 srl     $k0, $k0, 10    /* align RIPL (Requested Priority Level bits) to bit 0 */
-sw      $k1, 124($sp)   /* save STATUS on stack */
+sw      $k1, 136($sp)   /* save STATUS on stack */
 
 ins     $k1, $k0, 10, 6 /* insert RIPL (Requested Priority Level bits) to IPL field */
 mflo    $k0
-sw      $k0, 112($sp)
+sw      $k0, 124($sp)
 
 mfhi    $k0
-sw      $k0, 116($sp)
+sw      $k0, 128($sp)
 ins     $k1, $0, 1, 4
 mtc0    $k1, $12        /* write STATUS register */
 
-sw $31,108($sp)
-sw $30,104($sp)
-/*skip $28*/
-sw $28,100($sp)
-/*skip $27*/
-/*skip $26*/
+
+
+sw $31,120($sp)
+sw $30,116($sp)
+sw $29,112($sp)
+sw $28,108($sp)
+sw $27,104($sp)
+sw $26,100($sp)
 sw $25,96($sp)
 sw $24,92($sp)
 sw $23,88($sp)
@@ -54,6 +59,9 @@ sw $4,12($sp)
 sw $3,8($sp)
 sw $2,4($sp)
 sw $1,($sp)
+
+
+
   move	$fp,$sp
 
   li $a0,SOFTVEC_TYPE_SYSCALL
@@ -66,15 +74,15 @@ sw $1,($sp)
   nop
 
 
-
+/*戻ってこない*/
   move	$sp,$fp
 
-  lw $31,108($sp)
-  lw $30,104($sp)
-  /*skip $28*/
-  lw $28,100($sp)
-  /*skip $27*/
-  /*skip $26*/
+  lw $31,120($sp)
+  lw $30,116($sp)
+  lw $29,112($sp)
+  lw $28,108($sp)
+  lw $27,104($sp)
+  lw $26,100($sp)
   lw $25,96($sp)
   lw $24,92($sp)
   lw $23,88($sp)
@@ -101,25 +109,28 @@ sw $1,($sp)
   lw $2,4($sp)
   lw $1,($sp)
 
+
+
   di                      /* disable interrupts - just in case ? where enabled ? */
   ehb
 
-  lw	$k0, 112($sp)
+  lw	$k0, 124($sp)
   mtlo	$k0       /*lo*/
 
-  lw	$k0, 116($sp)
+  lw	$k0, 128($sp)
   mthi	$k0       /*hi*/
-  lw	$k0, 120($sp)       /* restore EPC from stack */
+
+  lw	$k0, 132($sp)       /* restore EPC from stack */
   mtc0	$k0, $14
 
 
-  lw	$k0, 124($sp)
+  lw	$k0, 136($sp)
    /* restore stack pointer */
   mtc0	$k0, $12
- addiu	$sp, $sp, 128
-  mfc0 $k0, $14
-	addiu $k0, 4
-  mtc0	$k0, $14
+
+ addiu	$sp, $sp, 140
+
+
   eret
   nop
 
@@ -127,30 +138,30 @@ sw $1,($sp)
 .set noreorder
 .global intr_serintr
 intr_serintr:
-  rdpgpr  $sp, $sp
-  mfc0    $k0, $13        /* read CAUSE register */
-  mfc0    $k1, $14        /* read EPC (Exception Program Counter) register */
-  addiu   $sp, $sp, -128  /* 30 (!) words space on stack */
-  sw      $k1, 120($sp)   /* save EPC (Exception Program Counter) on stack */
-  mfc0    $k1, $12        /* read STATUS register */
-  srl     $k0, $k0, 10    /* align RIPL (Requested Priority Level bits) to bit 0 */
-  sw      $k1, 124($sp)   /* save STATUS on stack */
+rdpgpr  $sp, $sp
+mfc0    $k0, $13        /* read CAUSE register */
+mfc0    $k1, $14        /* read EPC (Exception Program Counter) register */
+addiu   $sp, $sp, -140  /* 30 (!) words space on stack */
+sw      $k1, 132($sp)   /* save EPC (Exception Program Counter) on stack */
+mfc0    $k1, $12        /* read STATUS register */
+srl     $k0, $k0, 10    /* align RIPL (Requested Priority Level bits) to bit 0 */
+sw      $k1, 136($sp)   /* save STATUS on stack */
 
-  ins     $k1, $k0, 10, 6 /* insert RIPL (Requested Priority Level bits) to IPL field */
-  mflo    $k0
-  sw      $k0, 112($sp)
+ins     $k1, $k0, 10, 6 /* insert RIPL (Requested Priority Level bits) to IPL field */
+mflo    $k0
+sw      $k0, 124($sp)
 
-  mfhi    $k0
-  sw      $k0, 116($sp)
-  ins     $k1, $0, 1, 4
-  mtc0    $k1, $12        /* write STATUS register */
+mfhi    $k0
+sw      $k0, 128($sp)
+ins     $k1, $0, 1, 4
+mtc0    $k1, $12        /* write STATUS register */
 
-  sw $31,108($sp)
-  sw $30,104($sp)
-  /*skip $28*/
-  sw $28,100($sp)
-  /*skip $27*/
-  /*skip $26*/
+  sw $31,120($sp)
+  sw $30,116($sp)
+  sw $29,112($sp)
+  sw $28,108($sp)
+  sw $27,104($sp)
+  sw $26,100($sp)
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)
@@ -191,12 +202,12 @@ intr_serintr:
 
   move	$sp,$fp
 
-  lw $31,108($sp)
-  lw $30,104($sp)
-  /*skip $28*/
-  lw $28,100($sp)
-  /*skip $27*/
-  /*skip $26*/
+  lw $31,120($sp)
+  lw $30,116($sp)
+  lw $29,112($sp)
+  lw $28,108($sp)
+  lw $27,104($sp)
+  lw $26,100($sp)
   lw $25,96($sp)
   lw $24,92($sp)
   lw $23,88($sp)
@@ -226,21 +237,21 @@ intr_serintr:
   di                      /* disable interrupts - just in case ? where enabled ? */
   ehb
 
-  lw	$k0, 112($sp)
+  lw	$k0, 124($sp)
   mtlo	$k0       /*lo*/
 
-  lw	$k0, 116($sp)
+  lw	$k0, 128($sp)
   mthi	$k0       /*hi*/
-  addiu $sp,$sp,120
-  lw	$k0, 120($sp)       /* restore EPC from stack */
+
+  lw	$k0, 132($sp)       /* restore EPC from stack */
   mtc0	$k0, $14
 
 
-  lw	$k0, 124($sp)
+  lw	$k0, 136($sp)
    /* restore stack pointer */
   mtc0	$k0, $12
 
- addiu	$sp, $sp, 128
+ addiu	$sp, $sp, 140
 
   eret
   nop
