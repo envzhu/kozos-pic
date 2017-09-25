@@ -13,8 +13,8 @@ DECLARE_CONFIG(0, 0x7FFFFFFB);
 DECLARE_CONFIG(1, 0xFF7FCD59);
 DECLARE_CONFIG(2, 0xFFF9F9F9);
 DECLARE_CONFIG(3, 0xFFFFFFFF);
-DECLARE_INTERRUPT(soft_intr,intr_syscall);
-DECLARE_INTERRUPT(37,intr_serintr);
+//DECLARE_INTERRUPT(soft_intr,intr_syscall);
+//DECLARE_INTERRUPT(37,intr_serintr);
 void sys_intr(softvec_type_t type, unsigned long sp);
 static int init(void)
 {
