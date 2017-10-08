@@ -1,26 +1,8 @@
-
-   /*
-    * Reset vector.
-    * Jump to startup code.
-    */
-   .section .reset,"ax",@progbits
-   .set noreorder
-   .ent _reset
-_reset:
-   j _startup
-   nop
-
-   .end _reset
-   .globl _reset
-
-
-   /*
-    * Startup: executed on any reset and the non-maskable interrupt (NMI).
-    */
    .section .startup,"ax",@progbits
    .set noreorder
-   .ent _startup
-_startup:
+   .global	_start
+   .ent _start
+_start:
 
    /*
     * Check if it is a reset.
@@ -55,47 +37,6 @@ _is_a_reset:
    wrpgpr  $gp,$gp                  /* Change $gp in shadow registers as well */
    mtc0    $t3, $12, 2
 
-   /*
-    * Clean up BSS memory.
-    * All uninitialized variables will have the value zero.
-    * BSS limits in memory are chosen by the linker (_bss_start, _ebss).
-    *//*
-   la $t0, _bss_start
-   la $t1, _ebss
-   b _bss_check
-   nop
-
-_bss_init:
-   sw $0, 0x0($t0)
-   sw $0, 0x4($t0)
-   sw $0, 0x8($t0)
-   sw $0, 0xc($t0)
-   addu $t0, 16
-
-_bss_check:
-   bltu    $t0, $t1, _bss_init
-   nop
-
-   /*
-    * Setup initialized variables in RAM memory.
-    * Copy initial values from Flash (.rodata) to RAM (.data).
-    * DATA limits are chosen by the linker (_data_start, _edata).
-    */
-/*   la $t0, _fimage
-   la $t1, _data_start
-   la $t2, _edata
-   b _init_check
-   nop
-
-_init_data:
-   lw $t3, ($t0)
-   sw $t3, ($t1)
-   addu $t0, 4
-   addu $t1, 4
-
-_init_check:
-   bltu $t1, $t2, _init_data
-   nop*/
 
    /*
     * Setup co-processor (CP0)
@@ -126,4 +67,4 @@ _init_check:
    and $a1, $a1, 0
    j main
    nop
-   .end _startup
+   .end _start

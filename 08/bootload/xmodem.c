@@ -13,13 +13,13 @@
 
 #define XMODEM_BLOCK_SIZE 128
 
-/* ���M�J�n�������܂ő��M�v�����o�� */
+/* 受信開始されるまで送信要求を出す */
 static int xmodem_wait(void)
 {
   long cnt = 0;
 
   while (!serial_is_recv_enable(SERIAL_DEFAULT_DEVICE)) {
-    if (++cnt >= 2000) {
+    if (++cnt >= 2000000) {
       cnt = 0;
       serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
     }
@@ -28,7 +28,7 @@ static int xmodem_wait(void)
   return 0;
 }
 
-/* �u���b�N�P�ʂł̎��M */
+/* ブロック単位での受信 */
 static int xmodem_read_block(unsigned char block_number, char *buf)
 {
   unsigned char c, block_num, check_sum;
@@ -64,21 +64,21 @@ long xmodem_recv(char *buf)
 
   while (1) {
     if (!receiving)
-      xmodem_wait(); /* ���M�J�n�������܂ő��M�v�����o�� */
+      xmodem_wait(); /* 受信開始されるまで送信要求を出す */
 
     c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
 
-    if (c == XMODEM_EOT) { /* ���M�I�� */
+    if (c == XMODEM_EOT) { /* 受信終了 */
       serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_ACK);
       break;
-    } else if (c == XMODEM_CAN) { /* ���M���f */
+    } else if (c == XMODEM_CAN) { /* 受信中断 */
       return -1;
-    } else if (c == XMODEM_SOH) { /* ���M�J�n */
+    } else if (c == XMODEM_SOH) { /* 受信開始 */
       receiving++;
-      r = xmodem_read_block(block_number, buf); /* �u���b�N�P�ʂł̎��M */
-      if (r < 0) { /* ���M�G���[ */
+      r = xmodem_read_block(block_number, buf); /* ブロック単位での受信 */
+      if (r < 0) { /* 受信エラー */
 	serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
-      } else { /* �������M */
+      } else { /* 正常受信 */
 	block_number++;
 	size += r;
 	buf  += r;
