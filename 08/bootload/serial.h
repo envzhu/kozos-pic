@@ -1,10 +1,10 @@
 #ifndef _SERIAL_H_INCLUDED_
 #define _SERIAL_H_INCLUDED_
 
-int serial_init(int index);                       /* ƒfƒoƒCƒX‰Šú‰» */
-int serial_is_send_enable(int index);             /* ‘—M‰Â”\‚©H */
-int serial_send_byte(int index, unsigned char b); /* ‚P•¶š‘—M */
-int serial_is_recv_enable(int index);             /* óM‰Â”\‚©H */
-unsigned char serial_recv_byte(int index);        /* ‚P•¶šóM */
+int serial_init(int index);                       /* ãƒ‡ãƒã‚¤ã‚¹åˆæœŸåŒ– */
+int serial_is_send_enable(int index);             /* é€ä¿¡å¯èƒ½ã‹ï¼Ÿ */
+int serial_send_byte(int index, unsigned char b); /* ï¼‘æ–‡å­—é€ä¿¡ */
+int serial_is_recv_enable(int index);             /* å—ä¿¡å¯èƒ½ã‹ï¼Ÿ */
+unsigned char serial_recv_byte(int index);        /* ï¼‘æ–‡å­—å—ä¿¡ */
 
 #endif
