@@ -72,7 +72,7 @@ int strncmp(const char *s1, const char *s2, int len)
   return 0;
 }
 
-/* ‚P•¶š‘—M */
+/* ï¼‘æ–‡å­—é€ä¿¡ */
 int putc(unsigned char c)
 {
   if (c == '\n')
@@ -80,16 +80,16 @@ int putc(unsigned char c)
   return serial_send_byte(SERIAL_DEFAULT_DEVICE, c);
 }
 
-/* ‚P•¶šóM */
+/* ï¼‘æ–‡å­—å—ä¿¡ */
 unsigned char getc(void)
 {
   unsigned char c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
   c = (c == '\r') ? '\n' : c;
-  putc(c); /* ƒGƒR[EƒoƒbƒN */
+  putc(c); /* ã‚¨ã‚³ãƒ¼ãƒ»ãƒãƒƒã‚¯ */
   return c;
 }
 
-/* •¶š—ñ‘—M */
+/* æ–‡å­—åˆ—é€ä¿¡ */
 int puts(unsigned char *str)
 {
   while (*str)
@@ -97,7 +97,7 @@ int puts(unsigned char *str)
   return 0;
 }
 
-/* •¶š—ñóM */
+/* æ–‡å­—åˆ—å—ä¿¡ */
 int gets(unsigned char *buf)
 {
   int i = 0;
@@ -111,7 +111,7 @@ int gets(unsigned char *buf)
   return i - 1;
 }
 
-/* ”’l‚Ì16i•\¦ */
+/* æ•°å€¤ã®16é€²è¡¨ç¤º */
 int putxval(unsigned long value, int column)
 {
   char buf[9];
@@ -133,4 +133,3 @@ int putxval(unsigned long value, int column)
 
   return 0;
 }
-

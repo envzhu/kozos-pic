@@ -8,7 +8,8 @@ AS      = $(BINDIR)/$(ADDNAME)as
 CC      = $(BINDIR)/$(ADDNAME)gcc
 LD      = $(BINDIR)/$(ADDNAME)ld
 NM      = $(BINDIR)/$(ADDNAME)nm
-OBJCOPY = $(BINDIR)/$(ADDNAME)objcopy
+OBJCOPY = /opt/pinguino/p32/bin/p32-objcopy
+#for bag OBJCOPY = $(BINDIR)/$(ADDNAME)objcopy
 OBJDUMP = $(BINDIR)/$(ADDNAME)objdump
 RANLIB  = $(BINDIR)/$(ADDNAME)ranlib
 STRIP   = $(BINDIR)/$(ADDNAME)strip
@@ -27,7 +28,7 @@ CFLAGS = -Wall -march=m4k -EL -nostdinc -nostdlib -fno-builtin
 #CFLAGS += -mint32 # intを32ビットにすると掛算／割算ができなくなる
 CFLAGS += -I.
 CFLAGS += -G0
-FLAGS += -Os
+CFLAGS += -Os
 CFLAGS += -DKZLOAD
 
 LFLAGS = -static -T test.ld -L.
@@ -42,7 +43,6 @@ $(TARGET) :	$(OBJS)
 		$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
 		$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 		$(STRIP) $(TARGET).hex
-		./hex2pickit3 $(TARGET).hex a.hex
 
 .c.o :		$<
 		$(CC) -c $(CFLAGS) $<
@@ -53,11 +53,14 @@ $(TARGET) :	$(OBJS)
 .S.o :		$<
 		$(CC) -c $(CFLAGS) $<
 
+$(TARGET).hex	:	$(TARGET)
 
 image :		$(TARGET).hex
 
-write:
-	./pic32prog a.hex
+write:		$(TARGET).hex
+		./pic32prog $(TARGET).hex
 
 clean :
 		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).hex a.hex
+obj-clean	:
+		rm -f $(OBJS)
