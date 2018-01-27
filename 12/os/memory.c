@@ -72,7 +72,11 @@ void *kzmem_alloc(int size)
     p = &pool[i];
     if (size <= p->size - sizeof(kzmem_block)) {
       if (p->free == NULL) { /* 解放済み領域が無い(メモリ・ブロック不足) */
-	kz_sysdown();
+  #ifdef DEBUG
+    puts("There is no free memory block.\n");
+  #endif
+
+  kz_sysdown();
 	return NULL;
       }
       /* 解放済みリンクリストから領域を取得する */
@@ -89,7 +93,10 @@ void *kzmem_alloc(int size)
   }
 
   /* 指定されたサイズの領域を格納できるメモリ・プールが無い */
-  puts("free->not enough\n");
+  #ifdef DEBUG
+    puts("The required memory size is too big.\n");
+  #endif
+
   kz_sysdown();
   return NULL;
 }
@@ -113,6 +120,10 @@ void kzmem_free(void *mem)
       return;
     }
   }
+
+  #ifdef DEBUG
+    puts("Failed to release a memory block.\n");
+  #endif
 
   kz_sysdown();
 }

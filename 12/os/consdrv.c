@@ -52,13 +52,10 @@ static void send_string(struct consreg *cons, char *str, int len)
    * 送信割込み有効ならば送信開始されており，送信割込みの延長で
    * 送信バッファ内のデータが順次送信されるので，何もしなくてよい．
    */
-   //puts("during ifs\n");
   if (cons->send_len && !serial_intr_is_send_enable(cons->index)) {
     serial_intr_send_enable(cons->index); /* 送信割込み有効化 */
-    //puts("send_char\n");
     send_char(cons); /* 送信開始 */
   }
-  //puts("finish send_string()\n");
 }
 
 /*
