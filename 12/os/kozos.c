@@ -175,50 +175,44 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
 
   /* スタックの初期化 */
   sp = (uint32 *)thp->stack;
-//  *(--sp) = (uint32)thread_end;
 
-  /*
-   * プログラム・カウンタを設定する．
-   * スレッドの優先度がゼロの場合には，割込み禁止スレッドとする．
-   */
+  *(--sp) = 0; /* C0_status */
+  *(--sp) = (uint32)thread_init;/*C0_EPC $12 for eret*/
 
-    *(--sp) = 0; /* C0_status */
-    *(--sp) = (uint32)thread_init;//| ((uint32)(priority ? 0 : 0xc0) << 24); /*C0_EPC $12 for eret*/
+  *(--sp) = 0; /* Hi */
+  *(--sp) = 0; /* Lo */
 
-    *(--sp) = 0; /* Hi */
-    *(--sp) = 0; /* Lo */
-
-    *(--sp) = (uint32)thread_end; /* $31 */
-    *(--sp) = 0; /* $30 */
-    *(--sp) = 0;//skip $29
-    *(--sp) = 0; /* $28 */
-    *(--sp) = 0;//skip $27
-    *(--sp) = 0;//skip $26
-    *(--sp) = 0; /* $25 */
-    *(--sp) = 0; /* $24 */
-    *(--sp) = 0; /* $23 */
-    *(--sp) = 0; /* $22 */
-    *(--sp) = 0; /* $21 */
-    *(--sp) = 0; /* $20 */
-    *(--sp) = 0; /* $19 */
-    *(--sp) = 0; /* $18 */
-    *(--sp) = 0; /* $17 */
-    *(--sp) = 0; /* $16 */
-    *(--sp) = 0; /* $15 */
-    *(--sp) = 0; /* $14 */
-    *(--sp) = 0; /* $13 */
-    *(--sp) = 0; /* $12 */
-    *(--sp) = 0; /* $11 */
-    *(--sp) = 0; /* $10 */
-    *(--sp) = 0; /* $9 */
-    *(--sp) = 0; /* $8 */
-    *(--sp) = 0; /* $7 */
-    *(--sp) = 0; /* $6 */
-    *(--sp) = 0; /* $5 */
-    *(--sp) = (uint32)thp;  /* $4 $a0 */
-    *(--sp) = 0; /* $3 */
-    *(--sp) = 0; /* $2 */
-    *(--sp) = 0; /* $1 */
+  *(--sp) = (uint32)thread_end; /* $31 */
+  *(--sp) = 0; /* $30 */
+  *(--sp) = 0;//skip $29
+  *(--sp) = 0; /* $28 */
+  *(--sp) = 0;//skip $27
+  *(--sp) = 0;//skip $26
+  *(--sp) = 0; /* $25 */
+  *(--sp) = 0; /* $24 */
+  *(--sp) = 0; /* $23 */
+  *(--sp) = 0; /* $22 */
+  *(--sp) = 0; /* $21 */
+  *(--sp) = 0; /* $20 */
+  *(--sp) = 0; /* $19 */
+  *(--sp) = 0; /* $18 */
+  *(--sp) = 0; /* $17 */
+  *(--sp) = 0; /* $16 */
+  *(--sp) = 0; /* $15 */
+  *(--sp) = 0; /* $14 */
+  *(--sp) = 0; /* $13 */
+  *(--sp) = 0; /* $12 */
+  *(--sp) = 0; /* $11 */
+  *(--sp) = 0; /* $10 */
+  *(--sp) = 0; /* $9 */
+  *(--sp) = 0; /* $8 */
+  *(--sp) = 0; /* $7 */
+  *(--sp) = 0; /* $6 */
+  *(--sp) = 0; /* $5 */
+  *(--sp) = (uint32)thp;  /* $4 $a0 */
+  *(--sp) = 0; /* $3 */
+  *(--sp) = 0; /* $2 */
+  *(--sp) = 0; /* $1 */
 
 
   /* スレッドのコンテキストを設定 */
@@ -400,20 +394,20 @@ static kz_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp)
 
   static void thread_intr(softvec_type_t type, unsigned long sp);
 
-  /* システム・コールの処理(kz_setintr():割込みハンドラ登録) */
-  static int thread_setintr(softvec_type_t type, kz_handler_t handler)
-  {
-    /*
-     * 割込みを受け付けるために，ソフトウエア・割込みベクタに
-     * OSの割込み処理の入口となる関数を登録する．
-     */
-    softvec_setintr(type, thread_intr);
+/* システム・コールの処理(kz_setintr():割込みハンドラ登録) */
+static int thread_setintr(softvec_type_t type, kz_handler_t handler)
+{
+  /*
+   * 割込みを受け付けるために，ソフトウエア・割込みベクタに
+   * OSの割込み処理の入口となる関数を登録する．
+   */
+  softvec_setintr(type, thread_intr);
 
-    handlers[type] = handler; /* OS側から呼び出す割込みハンドラを登録 */
-    putcurrent();
+  handlers[type] = handler; /* OS側から呼び出す割込みハンドラを登録 */
+  putcurrent();
 
-    return 0;
-  }
+  return 0;
+}
 
 static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 {
@@ -459,7 +453,7 @@ static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
     break;
   case KZ_SYSCALL_TYPE_SETINTR: /* kz_setintr() */
     p->un.setintr.ret = thread_setintr(p->un.setintr.type,
-	       p->un.setintr.handler);
+				       p->un.setintr.handler);
     break;
   default:
     break;
@@ -550,8 +544,7 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
    * スレッドのディスパッチ
    * (dispatch()関数の本体はstartup.sにあり，アセンブラで記述されている)
    */
-
-  dispatch(current->context.sp);
+  dispatch(&current->context);
   /* ここには返ってこない */
 }
 
@@ -580,7 +573,7 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 				    argc, argv);
 
   /* 最初のスレッドを起動 */
-  dispatch(current->context.sp);
+  dispatch(&current->context);
 
   /* ここには返ってこない */
 }
