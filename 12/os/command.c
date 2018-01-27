@@ -31,6 +31,7 @@ int command_main(int argc, char *argv[])
 {
   char *p;
   int size;
+
   send_use(SERIAL_DEFAULT_DEVICE);
 
   while (1) {

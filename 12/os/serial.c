@@ -30,12 +30,18 @@ struct pic_sci {
   volatile uint32 UxBRGINV;
 };
 
-#define IEC1    ((unsigned int *)0xBF881070)
-#define IEC1CLR ((unsigned int *)0xBF881074)
-#define IEC1SET ((unsigned int *)0xBF881078)
-#define IFS1    ((unsigned int *)0xBF881040)
-#define IFS1CLR ((unsigned int *)0xBF881044)
-#define IFS1SET ((unsigned int *)0xBF881048)
+#define IEC0    *((volatile unsigned int *)0xBF881060)
+#define IEC0CLR *((volatile unsigned int *)0xBF881064)
+#define IEC0SET *((volatile unsigned int *)0xBF881068)
+#define IEC1    *((volatile unsigned int *)0xBF881070)
+#define IEC1CLR *((volatile unsigned int *)0xBF881074)
+#define IEC1SET *((volatile unsigned int *)0xBF881078)
+#define IFS0    *((volatile unsigned int *)0xBF881030)
+#define IFS0CLR *((volatile unsigned int *)0xBF881034)
+#define IFS0SET *((volatile unsigned int *)0xBF881038)
+#define IFS1    *((volatile unsigned int *)0xBF881040)
+#define IFS1CLR *((volatile unsigned int *)0xBF881044)
+#define IFS1SET *((volatile unsigned int *)0xBF881048)
 
 //UxMODE register
 #define PIC_SCI_UxMODE_STSEL  (1<<0)
@@ -82,6 +88,12 @@ struct pic_sci {
 // bit 23-16 is read only
 #define PIC_SCI_UxSTA_ADM_EN  (1<<24)
 
+//UART Interrupts Registers
+#define PIC_SCI1_RECV_INTTERUPT_FLAG    (1<<8)
+#define PIC_SCI1_RECV_INTTERUPT_ENABLE  (1<<8)
+#define PIC_SCI1_SEND_INTTERUPT_FLAG    (1<<9)
+#define PIC_SCI1_SEND_INTTERUPT_ENABLE  (1<<9)
+
 #define PIC_SCI2_RECV_INTTERUPT_FLAG    (1<<22)
 #define PIC_SCI2_RECV_INTTERUPT_ENABLE  (1<<22)
 #define PIC_SCI2_SEND_INTTERUPT_FLAG    (1<<23)
@@ -97,27 +109,15 @@ static struct {
 
 /* デバイス初期化 */
 int serial_init(int index)
-{/*
+{
   volatile struct pic_sci *sci = regs[index].sci;
-  unsigned int *INTCONSET=0xBF881008;
-  unsigned int *IPC9SET=0xBF881128;
-  unsigned int *IEC0SET=0xBF881068;
-  sci ->UxSTA = 0x0;
-  sci ->UxTXREG = 0x0;
-  sci ->UxBRG = 0x137;//????????
-  *INTCONSET=0x1000;//INTCONbits.MVEC = 1;
-  sci ->UxSTASET=0x1400;//U2STAbits.UTXEN = 1; U2STAbits.URXEN = 1;
-  *IPC9SET=0x400;//IPC9bits.U2IP = 1;
-  //IPC9bits.U2IS = 0;
-  //  Enable the multi vector
-  *IEC0SET=0b110;
-  //  Enable Global Interrupts
-  //__builtin_mtc0(12,0,(__builtin_mfc0(12,0) | 0x0001));
-  //*IEC1SET=PIC_SCI2_SEND_INTTERUPT_ENABLE;    //IEC1bits.U2RXIE = 1;
-  sci ->UxMODE = PIC_SCI_UxMODE_ON;//UART ??*/
-  //serial_intr_send_disable(1);
-  //serial_intr_recv_disable(1);
-  *IFS1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG|PIC_SCI2_SEND_INTTERUPT_FLAG;
+
+  if(index==0)
+    IFS1CLR=PIC_SCI1_RECV_INTTERUPT_FLAG|PIC_SCI1_SEND_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IFS1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG|PIC_SCI2_SEND_INTTERUPT_FLAG;
+
   return 0;
 }
 
@@ -137,7 +137,13 @@ int serial_send_byte(int index, unsigned char c)
   /* 送信可能になるまで待つ */
   while (!serial_is_send_enable(index));
   sci ->UxTXREG = c; /* 送信開始 */
-  *IFS1CLR=PIC_SCI2_SEND_INTTERUPT_FLAG;
+  
+  if(index==0)
+    IFS1CLR=PIC_SCI1_SEND_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IFS1CLR=PIC_SCI2_SEND_INTTERUPT_FLAG;
+
   return 0;
 }
 
@@ -156,50 +162,85 @@ unsigned char serial_recv_byte(int index)
 
   /*受信文字が来るまで待つ*/
   while(!serial_is_recv_enable(index));
-  c=sci ->UxRXREG;
+  c = sci ->UxRXREG;
 /*
   if ((sci ->UxSTA == PIC_SCI_UxSTA_OERR))
   {
       sci ->UxSTACLR = PIC_SCI_UxSTA_OERR;
   }*/
-  *IFS1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG;
+  if(index==0)
+    IFS1CLR=PIC_SCI1_RECV_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IFS1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG;
+
   return c;
 }
 
 /* 送信割込み有効か？ */
 int serial_intr_is_send_enable(int index)
 {
-  if(index==0)return 0;
-  return (*IEC1 & PIC_SCI2_SEND_INTTERUPT_ENABLE) ? 1 : 0;
+  if(index==0)
+    return (IEC1 & PIC_SCI1_SEND_INTTERUPT_ENABLE) ? 1 : 0;;
+  
+  if(index==1)
+    return (IEC1 & PIC_SCI2_SEND_INTTERUPT_ENABLE) ? 1 : 0;
+
+  return -1;
 }
 
 /* 送信割込み有効化 */
 void serial_intr_send_enable(int index)
 {
-  *IEC1SET=PIC_SCI2_SEND_INTTERUPT_ENABLE;
+  if(index==0)
+    IEC1SET=PIC_SCI1_SEND_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IEC1SET=PIC_SCI2_SEND_INTTERUPT_FLAG;
+
 }
 
 /* 送信割込み無効化 */
 void serial_intr_send_disable(int index)
 {
-  *IEC1CLR=PIC_SCI2_SEND_INTTERUPT_ENABLE;
+  if(index==0)
+    IEC1CLR=PIC_SCI1_SEND_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IEC1CLR=PIC_SCI2_SEND_INTTERUPT_FLAG;
+
 }
 
 /* 受信割込み有効か？ */
 int serial_intr_is_recv_enable(int index)
 {
-  if(index==0)return 0;
-  return (*IEC1 & PIC_SCI2_RECV_INTTERUPT_ENABLE) ? 1 : 0;
+  if(index==0)
+    return (IEC1 & PIC_SCI1_RECV_INTTERUPT_ENABLE) ? 1 : 0;;
+  
+  if(index==1)
+    return (IEC1 & PIC_SCI2_RECV_INTTERUPT_ENABLE) ? 1 : 0;
+
+  return -1;
 }
 
 /* 受信割込み有効化 */
 void serial_intr_recv_enable(int index)
 {
-  *IEC1SET=PIC_SCI2_RECV_INTTERUPT_ENABLE;
+  if(index==0)
+    IEC1SET=PIC_SCI1_RECV_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IEC1SET=PIC_SCI2_RECV_INTTERUPT_FLAG;
+
 }
 
 /* 受信割込み無効化 */
 void serial_intr_recv_disable(int index)
 {
-  *IEC1CLR=PIC_SCI2_RECV_INTTERUPT_ENABLE;
+  if(index==0)
+    IEC1CLR=PIC_SCI1_RECV_INTTERUPT_FLAG;
+  
+  if(index==1)
+    IEC1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG;
+
 }
