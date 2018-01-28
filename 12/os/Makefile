@@ -46,6 +46,9 @@ $(TARGET) :	$(OBJS)
 .S.o :		$<
 		$(CC) -c $(CFLAGS) $<
 
+.s.o :		$<
+		$(CC) -c $(CFLAGS) $<
+
 $(TARGET).hex :	$(TARGET)
 		$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 

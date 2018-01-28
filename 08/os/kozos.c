@@ -294,7 +294,7 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
    * (dispatch()関数の本体はstartup.sにあり，アセンブラで記述されている)
    */
 
-  dispatch(current->context.sp);
+  dispatch(&current->context);
   /* ここには返ってこない */
 }
 
@@ -319,7 +319,7 @@ void kz_start(kz_func_t func, char *name, int stacksize,
   current = (kz_thread *)thread_run(func, name, stacksize, argc, argv);
 
   /* 最初のスレッドを起動 */
-  dispatch(current->context.sp);
+  dispatch(&current->context);
 
   /* ここには返ってこない */
 }
