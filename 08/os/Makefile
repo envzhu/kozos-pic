@@ -14,25 +14,24 @@ RANLIB  = $(ADDNAME)ranlib
 STRIP   = $(ADDNAME)strip
 BIN2HEX = $(ADDNAME)bin2hex
 
-PIC32PROG = pic32prog
 
 
 
-OBJS  = startup.o main.o hardware.o intr.o interrupt.o
-OBJS += lib.o serial.o xmodem.o elf.o
+OBJS  = startup.o main.o lib.o serial.o interrupt.o
 
-TARGET = kzload
+OBJS += kozos.o syscall.o test08_1.o
+
+TARGET = kozos
 
 CFLAGS = -Wall -march=m4k -EL -nostdinc -nostdlib -fno-builtin
-CFLAGS += -I.
+CFLAGS += -I. -G0
 CFLAGS += -G0 #これがないとエラーになる
 CFLAGS += -Os
-CFLAGS += -DKZLOAD
+CFLAGS += -DKOZOS
 
 LFLAGS = -static -T ld.scr -L.
 
 .SUFFIXES: .c .o
-.SUFFIXES: .s .o
 .SUFFIXES: .S .o
 
 all :		$(TARGET)
@@ -40,12 +39,11 @@ all :		$(TARGET)
 $(TARGET) :	$(OBJS)
 		$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
 		cp $(TARGET) $(TARGET).elf
+		#$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 		$(STRIP) $(TARGET)
+		#$(OBJCOPY) -I ihex -O elf32-little $(TARGET).hex $(TARGET)
 
 .c.o :		$<
-		$(CC) -c $(CFLAGS) $<
-
-.s.o :		$<
 		$(CC) -c $(CFLAGS) $<
 
 .S.o :		$<
@@ -54,13 +52,10 @@ $(TARGET) :	$(OBJS)
 $(TARGET).hex :	$(TARGET)
 		$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 
-image :	$(TARGET).hex
+image :		$(TARGET).hex
 
-write:	$(TARGET).hex
-	$(PIC32PROG) $(TARGET).hex
-	
 obj_clean :
 		rm -f $(OBJS)
 
 clean :
-		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).hex a.hex
+		rm -f $(OBJS) $(TARGET) $(TARGET).hex

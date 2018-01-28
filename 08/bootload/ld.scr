@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf32-littlemips")
-OUTPUT_ARCH("mips")
-ENTRY(_start)
+OUTPUT_ARCH(mips)
+ENTRY("_start")
 
 /*
  * Interrupt vector static definitions.
@@ -9,22 +9,26 @@ PROVIDE(_vector_spacing = 0x00000001);
 PROVIDE(_ebase_address = 0x9D000000);
 
 /*
- * Endere�os absolutos.
+ * Reset adress
  */
 _RESET_ADDR              = 0x9FC00000;
 
 
 MEMORY
 {
-  program_mem (rx)  : o = 0x9D001000, l = 0x3F000   /* flash program memory 256KB*/
   boot_mem(rx)      : o = 0x9FC00000, l = 0xBF0     /* special flash boot memory */
-  vectors_mem(rx)   : o = 0x9D000000, l = 0x1000    /* interrupt vectors area */
   config_mem(rx)    : o = 0x9FC00BF0, l = 0x10      /* configuration bits */
-  buffer(rwx)	      : o = 0xA0000000, l = 0x7000    /* 28KB */
-  data_mem (wx)     : o = 0xA0007000, l = 0xC00     /* ram memory 32KB */
-  bootstack(rw)	    : o = 0xA0007D00, l = 0x000000
-  intrstack(rw)	    : o = 0xA0007D00, l = 0x000000  /* end of RAM */
-  softvec(rw)	      : o = 0xA0007D00, l = 0x000300  /* top of RAM */
+
+  romall(rx)        : o = 0x9D000000, l = 0x40000   /* 256KB */
+  vectors_mem(rx)   : o = 0x9D000000, l = 0x1000    /* interrupt vectors area */
+  program_mem (rx)  : o = 0x9D001000, l = 0x3F000   /* flash program memory 256KB*/
+  
+  ramall(rx)        : o = 0xA0000000, l = 0x10000 /* 64KB */
+  softvec(rw)	      : o = 0xA0000000, l = 0x100   /* top of RAM */
+  buffer(rwx)	      : o = 0xA0000100, l = 0x7000  /* 28KB */
+  data_mem (wx)     : o = 0xA0007100, l = 0xC00   /* ram memory 32KB */
+  bootstack(rw)	    : o = 0xA0007FFC, l = 0x0
+  intrstack(rw)	    : o = 0xA0007FFC, l = 0x0     /* end of RAM */
 }
 
 
@@ -180,47 +184,33 @@ SECTIONS
         { KEEP(*(.vector_42)) } > vectors_mem
 
 
-  /*
-   * Text segment: program code, to the Flash.
-   */
   	.text : {
   		_text_start = . ;
   		*(.text)
   		_etext = . ;
   	} > program_mem
-  /*
-   * Constants: to the Flash.
-   */
+
 
   .rodata : {
-  _rodata_start = . ;
-  *(.strings)
-  *(.rodata)
-  *(.rodata.*)
-  _erodata = . ;
-} > program_mem
+    _rodata_start = . ;
+    *(.strings)
+    *(.rodata)
+    *(.rodata.*)
+    _erodata = . ;
+  } > program_mem
 
   . = ALIGN(4) ;
-  rodata_end = . ;
 
-  /*
-   * Initialized Data segments, from Flash to RAM.
-   */
-   .buffer : {
-     buffer_start = . ;
-   } > buffer
+  .buffer : {
+    buffer_start = . ;
+  } > buffer
+
 	.data : {
 		_data_start = . ;
 		*(.data)
     *(.sdata)
 		_edata = . ;
 	} > data_mem AT> program_mem
-
-  _gp = ALIGN(16) + 0x7ff0;                           /* place gp next to data and small data */
-
-  /*
-   * Unitialized data segments, RAM only.
-   */
 
 	.bss : {
 		_bss_start = . ;
@@ -230,14 +220,6 @@ SECTIONS
 		_ebss = . ;
 	} > data_mem AT> program_mem
 
-
-  /*
-   * End of static data. To be used for dynamic data.
-   */
-  _end = .;
-
-
-
   .bootstack  : {
     _bootstack = . ;
   } > bootstack
@@ -245,7 +227,6 @@ SECTIONS
   .intrstack  : {
     _intrstack = . ;
   } > intrstack
-
 
   .softvec : {
 		softvec = .;

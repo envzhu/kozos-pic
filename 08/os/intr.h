@@ -1,7 +1,7 @@
 #ifndef _INTR_H_INCLUDED_
 #define _INTR_H_INCLUDED_
 
-/* е╜е╒е╚ежеиевбж│ф╣■д▀е┘епе┐д╬─ъ╡┴ */
+/* уВ╜уГХуГИуВжуВиуВвуГ╗хЙ▓ш╛╝уБ┐уГЩуВпуВ┐уБохоЪч╛й */
 
 #define SOFTVEC_TYPE_NUM     3
 

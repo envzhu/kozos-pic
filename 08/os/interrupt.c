@@ -1,9 +1,8 @@
 #include "defines.h"
 #include "intr.h"
-#include "serial.h"
 #include "interrupt.h"
 
-/* ���եȥ������������ߥ٥����ν����� */
+/* ソフトウエア・割込みベクタの初期化 */
 int softvec_init(void)
 {
   int type;
@@ -12,7 +11,7 @@ int softvec_init(void)
   return 0;
 }
 
-/* ���եȥ������������ߥ٥��������� */
+/* ソフトウエア・割込みベクタの設定 */
 int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
 {
   SOFTVECS[type] = handler;
@@ -20,12 +19,11 @@ int softvec_setintr(softvec_type_t type, softvec_handler_t handler)
 }
 
 /*
- * ���̳����ߥϥ��ɥ顥
- * ���եȥ������������ߥ٥����򸫤ơ��ƥϥ��ɥ���ʬ�����롥
+ * 共通割込みハンドラ．
+ * ソフトウエア・割込みベクタを見て，各ハンドラに分岐する．
  */
 void interrupt(softvec_type_t type, unsigned long sp)
 {
-
   softvec_handler_t handler = SOFTVECS[type];
   if (handler)
     handler(type, sp);
