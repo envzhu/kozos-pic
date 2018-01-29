@@ -15,15 +15,13 @@ STRIP   = $(ADDNAME)strip
 BIN2HEX = $(ADDNAME)bin2hex
 
 
-OBJS  = startup.o main.o lib.o serial.o interrupt.o
-
-OBJS += kozos.o syscall.o test08_1.o
+OBJS  = startup.o main.o lib.o serial.o
 
 TARGET = kozos
 
 CFLAGS = -Wall -march=m4k -EL -nostdinc -nostdlib -fno-builtin
-CFLAGS += -I. -G0
-CFLAGS += -G0 #これがないとエラーになる
+CFLAGS += -I.
+CFLAGS += -G0 #これをしないとエラーが出る
 CFLAGS += -Os
 CFLAGS += -DKOZOS
 
