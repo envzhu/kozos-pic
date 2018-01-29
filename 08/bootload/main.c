@@ -12,6 +12,7 @@ static int init(void)
     extern int _erodata, _data_start, _edata, _bss_start, _ebss;
   memcpy(&_data_start, &_erodata, (long)&_edata - (long)&_data_start);
   memset(&_bss_start, 0, (long)&_ebss - (long)&_bss_start);
+  
   system_init();
 
   /* ソフトウエア・割り込みベクタを初期化する */
