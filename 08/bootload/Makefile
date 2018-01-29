@@ -18,7 +18,7 @@ PIC32PROG = pic32prog
 
 
 
-OBJS  = startup.o main.o hardware.o intr.o interrupt.o
+OBJS  = startup.o main.o hardware.o intr.o interrupt.o vector.o
 OBJS += lib.o serial.o xmodem.o elf.o
 
 TARGET = kzload
