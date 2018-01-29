@@ -23,9 +23,8 @@ OBJS += lib.o serial.o xmodem.o elf.o
 TARGET = kzload
 
 CFLAGS = -Wall -march=m4k -EL -nostdinc -nostdlib -fno-builtin
-#CFLAGS += -mint32 # intを32ビットにすると掛算／割算ができなくなる
 CFLAGS += -I.
-CFLAGS += -G0
+CFLAGS += -G0 #これをしないとエラーが出る
 FLAGS += -Os
 CFLAGS += -DKZLOAD
 

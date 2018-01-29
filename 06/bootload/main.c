@@ -1,28 +1,31 @@
 #include "defines.h"
+#include "hardware.h"
 #include "serial.h"
 #include "xmodem.h"
+#include "elf.h"
 #include "lib.h"
-#include "hardware.h"
-//#include "elf.h"
-
-#include "mx2/config.h"
-
-DECLARE_CONFIG(0, 0x7FFFFFFB);
-DECLARE_CONFIG(1, 0xFF7FCD59);
-DECLARE_CONFIG(2, 0xFFF9F9F9);
-DECLARE_CONFIG(3, 0xFFFFFFFF);
 
 static int init(void)
 {
-  SYSTEM_Initialize();
+  /* 以下はリンカ・スクリプトで定義してあるシンボル */
+  extern int _erodata, _data_start, _edata, _bss_start, _ebss;
 
-  /* �V���A���̏����� */
+  /*
+   * データ領域とBSS領域を初期化する．この処理以降でないと，
+   * グローバル変数が初期化されていないので注意．
+   */
+  memcpy(&_data_start, &_erodata, (long)&_edata - (long)&_data_start);
+  memset(&_bss_start, 0, (long)&_ebss - (long)&_bss_start);
+
+  system_init();
+
+  /* シリアルの初期化 */
   serial_init(SERIAL_DEFAULT_DEVICE);
 
   return 0;
 }
 
-/* ��������16�i�_���v�o�� */
+/* メモリの16進ダンプ出力 */
 static int dump(char *buf, long size)
 {
   long i;
@@ -59,42 +62,41 @@ int main(void)
   static unsigned char *loadbuf = NULL;
   char *entry_point;
   void (*f)(void);
-  char buffer[30720]; /* �����J�E�X�N���v�g�Œ��`�����Ă����o�b�t�@ */
+  extern int buffer_start; /* リンカ・スクリプトで定義されているバッファ */
 
   init();
 
   puts("kzload (kozos boot loader) started.\n");
 
   while (1) {
-    puts("kzload> "); /* �v�����v�g�\�� */
-    gets(buf); /* �V���A�������̃R�}���h���M */
+    puts("kzload> "); /* プロンプト表示 */
+    gets(buf); /* シリアルからのコマンド受信 */
 
-    if (!strcmp(buf, "load"))
-    { /* XMODEM�ł̃t�@�C���̃_�E�����[�h */
-      loadbuf = buffer;
+    if (!strcmp(buf, "load")) { /* XMODEMでのファイルのダウンロード */
+      loadbuf = (char *)(&buffer_start);
       size = xmodem_recv(loadbuf);
-      wait(); /* �]���A�v�����I�����[���A�v���ɐ��䂪�߂��܂ő҂����킹�� */
-      if (size < 0) {puts("\nXMODEM receive error!\n");
+      wait(); /* 転送アプリが終了し端末アプリに制御が戻るまで待ち合わせる */
+      if (size < 0) {
+	puts("\nXMODEM receive error!\n");
       } else {
 	puts("\nXMODEM receive succeeded.\n");
       }
-    } else if (!strcmp(buf, "dump")) { /* ��������16�i�_���v�o�� */
+    } else if (!strcmp(buf, "dump")) { /* メモリの16進ダンプ出力 */
       puts("size: ");
       putxval(size, 0);
       puts("\n");
       dump(loadbuf, size);
-    } else if (!strcmp(buf, "run")) { /* ELF�`���t�@�C���̎��s */
-      entry_point = elf_load(loadbuf); /* ���������ɓW�J(���[�h) */
+    } else if (!strcmp(buf, "run")) { /* ELF形式ファイルの実行 */
+      entry_point = elf_load(loadbuf); /* メモリ上に展開(ロード) */
       if (!entry_point) {
 	puts("run error!\n");
       } else {
 	puts("starting from entry point: ");
 	putxval((unsigned long)entry_point, 0);
 	puts("\n");
-    init_BMX();
 	f = (void (*)(void))entry_point;
-	f(); /* �����ŁC���[�h�����v���O�����ɏ������n�� */
-	/* �����ɂ͕Ԃ��Ă��Ȃ� */
+	f(); /* ここで，ロードしたプログラムに処理を渡す */
+	/* ここには返ってこない */
       }
     } else {
       puts("unknown.\n");
