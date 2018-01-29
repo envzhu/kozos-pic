@@ -7,6 +7,7 @@ int main(void)
   static char buf[32];
 
   puts("Hello World!\n");
+
   while (1) {
     puts("> ");
     gets(buf);

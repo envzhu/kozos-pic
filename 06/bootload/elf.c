@@ -38,37 +38,37 @@ struct elf_program_header {
   long align;
 };
 
-/* ELFƒwƒbƒ_‚Ìƒ`ƒFƒbƒN */
+/* ELFãƒ˜ãƒƒãƒ€ã®ãƒã‚§ãƒƒã‚¯ */
 static int elf_check(struct elf_header *header)
 {
   if (memcmp(header->id.magic, "\x7f" "ELF", 4))
     return -1;
 
   if (header->id.class   != 1) return -1; /* ELF32 */
-  if (header->id.format  != 1) return -1; /* little endian */
+  if (header->id.format  != 1) return -1; /* Big endian */
   if (header->id.version != 1) return -1; /* version 1 */
   if (header->type       != 2) return -1; /* Executable file */
   if (header->version    != 1) return -1; /* version 1 */
 
-  /* Hitachi H8/300 or H8/300H */
-  if (header->arch !=0 ) return -1;
+  /* MIPS R3000 */
+  if (header->arch != 8) return -1;
 
   return 0;
 }
 
-/* ƒZƒOƒƒ“ƒg’PˆÊ‚Å‚Ìƒ[ƒh */
+/* ã‚»ã‚°ãƒ¡ãƒ³ãƒˆå˜ä½ã§ã®ãƒ­ãƒ¼ãƒ‰ */
 static int elf_load_program(struct elf_header *header)
 {
   int i;
   struct elf_program_header *phdr;
 
   for (i = 0; i < header->program_header_num; i++) {
-    /* ƒvƒƒOƒ‰ƒ€Eƒwƒbƒ_‚ğæ“¾ */
+    /* ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãƒ»ãƒ˜ãƒƒãƒ€ã‚’å–å¾— */
     phdr = (struct elf_program_header *)
       ((char *)header + header->program_header_offset +
        header->program_header_size * i);
 
-    if (phdr->type != 1) /* ƒ[ƒh‰Â”\‚ÈƒZƒOƒƒ“ƒg‚©H */
+    if (phdr->type != 1) /* ãƒ­ãƒ¼ãƒ‰å¯èƒ½ãªã‚»ã‚°ãƒ¡ãƒ³ãƒˆã‹ï¼Ÿ */
       continue;
 
     memcpy((char *)phdr->physical_addr, (char *)header + phdr->offset,
@@ -84,12 +84,11 @@ char *elf_load(char *buf)
 {
   struct elf_header *header = (struct elf_header *)buf;
 
-  if (elf_check(header) < 0) /* ELFƒwƒbƒ_‚Ìƒ`ƒFƒbƒN */
+  if (elf_check(header) < 0) /* ELFãƒ˜ãƒƒãƒ€ã®ãƒã‚§ãƒƒã‚¯ */
     return NULL;
 
-  if (elf_load_program(header) < 0) /* ƒZƒOƒƒ“ƒg’PˆÊ‚Å‚Ìƒ[ƒh */
+  if (elf_load_program(header) < 0) /* ã‚»ã‚°ãƒ¡ãƒ³ãƒˆå˜ä½ã§ã®ãƒ­ãƒ¼ãƒ‰ */
     return NULL;
 
   return (char *)header->entry_point;
 }
-

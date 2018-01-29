@@ -244,4 +244,3 @@ void serial_intr_recv_disable(int index)
     IEC1CLR=PIC_SCI2_RECV_INTTERUPT_FLAG;
 
 }
-
