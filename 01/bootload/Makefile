@@ -17,8 +17,8 @@ BIN2HEX = $(ADDNAME)bin2hex
 PIC32PROG = pic32prog
 
 
-OBJS  = startup.o main.o hardware.o
-OBJS += lib.o serial.o xmodem.o elf.o
+OBJS  = startup.o hardware.o main.o
+OBJS += lib.o serial.o
 
 TARGET = kzload
 
@@ -40,7 +40,6 @@ $(TARGET) :	$(OBJS)
 		cp $(TARGET) $(TARGET).elf
 		$(STRIP) $(TARGET)
 
-
 .c.o :		$<
 		$(CC) -c $(CFLAGS) $<
 
@@ -50,11 +49,11 @@ $(TARGET) :	$(OBJS)
 $(TARGET).hex	:	$(TARGET)
 		$(OBJCOPY) -O ihex $(TARGET) $(TARGET).hex
 
-image :		$(TARGET).hex
+image :	$(TARGET).hex
 
 write:	$(TARGET).hex
 	$(PIC32PROG) $(TARGET).hex
-	
+
 obj_clean :
 		rm -f $(OBJS)
 
