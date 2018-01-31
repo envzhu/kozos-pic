@@ -85,7 +85,7 @@ struct pic_sci {
 #define PIC_SCI_UxSTA_UTXISEL_EVERY_DATA        (1<<14)
 #define PIC_SCI_UxSTA_UTXISEL_BUFFER_ALL_FREE   (2<<14)
 #define PIC_SCI_UxSTA_UTXISEL_DONOT_USE         (3<<14)
-// bit 23-16 is read only
+//skip 16-23bit read only
 #define PIC_SCI_UxSTA_ADM_EN  (1<<24)
 
 //UART Interrupts Registers
@@ -106,23 +106,13 @@ static struct {
   { PIC_SCI2 },
 };
 
-
 /* デバイス初期化 */
 int serial_init(int index)
 {
   volatile struct pic_sci *sci = regs[index].sci;
-
-  volatile unsigned int *U2STASET=0xBF806218;
-  volatile unsigned int *INTCONSET=0xBF881008;
-  volatile unsigned int *IPC9SET=0xBF881128;
-
-  *INTCONSET=0x1000;
-  *IPC9SET=0x400;
-  IEC0SET=0b110;
-
   sci ->UxSTA   = 0x0;
   sci ->UxTXREG = 0x0;
-  sci ->UxBRG   = 0x137;
+  sci ->UxBRG   = 0x131; //UxBRG = Fpb / 16 / Baud Rate - 1;
   sci ->UxSTASET= PIC_SCI_UxSTA_URXEN | PIC_SCI_UxSTA_UTXEN;
   sci ->UxMODE  = PIC_SCI_UxMODE_ON;
   return 0;
@@ -143,10 +133,10 @@ int serial_send_byte(int index, unsigned char c)
   /* 送信可能になるまで待つ */
   while (!serial_is_send_enable(index));
   sci ->UxTXREG = c; /* 送信開始 */
-  
+
   if(index==0)
     IFS1CLR=PIC_SCI1_SEND_INTTERUPT_FLAG;
-  
+
   if(index==1)
     IFS1CLR=PIC_SCI2_SEND_INTTERUPT_FLAG;
 
