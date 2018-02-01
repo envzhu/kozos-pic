@@ -6,11 +6,21 @@
 _vector_soft_intr:
   sw $26,-40($sp)
   sw $27,-36($sp)
+  mfc0    $k1, $14   /* read EPC */
+  addiu   $k1, 4     /* EPC+=4 */
+  sw  $k1, -8($sp)   /* save EPC on stack */
+
   mfc0  $k1, $13
   andi  $k0, $k1,(0x08 << 2)
   beq $k0,$0,intr_softerr
   nop
-  j intr_syscall
+  li $a0,SOFTVEC_TYPE_SYSCALL
+  j sys_intr
+  nop
+
+intr_softerr:
+  li $a0,SOFTVEC_TYPE_SOFTERR
+  j sys_intr
   nop
 .end _vector_soft_intr
 

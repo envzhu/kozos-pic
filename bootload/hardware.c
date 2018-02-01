@@ -112,11 +112,11 @@ void system_init(void)
 
 
 
-void init_BMX(void){
+void init_BMX(uint32 addr){
   #define BMXDKPBA    *((volatile unsigned int *)0xBF882010)
   #define BMXDUDBA    *((volatile unsigned int *)0xBF882020)
   #define BMXDUPBA    *((volatile unsigned int *)0xBF882030)
-  BMXDKPBA = 0xC000;
+  BMXDKPBA = addr & 0x1FFFF;
   BMXDUDBA = 0x10000;
   BMXDUPBA = 0x10000;
 }

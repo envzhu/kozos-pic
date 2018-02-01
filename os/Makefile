@@ -27,7 +27,7 @@ CFLAGS = -Wall -march=m4k -EL -nostdinc -nostdlib -fno-builtin
 CFLAGS += -I. 
 CFLAGS += -G0 #これをしないとエラーが出る
 CFLAGS += -Os
-CFLAGS += -DKOZOS
+CFLAGS += -DKOZOS -DDEBUG
 
 LFLAGS = -static -T ld.scr -L.
 

@@ -25,8 +25,8 @@ MEMORY
   
   ramall(rx)        : o = 0xA0000000, l = 0x10000 /* 64KB */
   softvec(rw)	      : o = 0xA0000000, l = 0x100   /* top of RAM */
-  buffer(rwx)	      : o = 0xA0000100, l = 0x7000  /* 28KB */
-  data_mem (wx)     : o = 0xA0007100, l = 0xC00   /* ram memory 32KB */
+  data_mem (wx)     : o = 0xA0000100, l = 0xC00   /* data memory 3KB */
+  buffer(rwx)	      : o = 0xA0000D00, l = 0x7000  /* 28KB */
   bootstack(rw)	    : o = 0xA0007FFC, l = 0x0
   intrstack(rw)	    : o = 0xA0007FFC, l = 0x0     /* end of RAM */
 }
@@ -37,10 +37,12 @@ SECTIONS
   /*
    * PIC32 configuration bits.
    */
-  .devcfg : { KEEP(*(.devcfg3))
-              KEEP(*(.devcfg2))
-              KEEP(*(.devcfg1))
-              KEEP(*(.devcfg0)) } > config_mem
+  .devcfg : { 
+    KEEP(*(.devcfg3))
+    KEEP(*(.devcfg2))
+    KEEP(*(.devcfg1))
+    KEEP(*(.devcfg0))
+  } > config_mem
 
   .startup :
   {
