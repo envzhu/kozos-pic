@@ -28,10 +28,10 @@ intr_softerr:
 
   sw $31,120($sp)
   sw $30,116($sp)
-  sw $29,112($sp)
+  /*sw $29,112($sp)*/
   sw $28,108($sp)
-  sw $27,104($sp)
-  sw $26,100($sp)
+  /*sw $27,104($sp)*/
+  /*sw $26,100($sp)*/
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)
@@ -75,7 +75,7 @@ intr_softerr:
 
   lw $31,120($sp)
   lw $30,116($sp)
-  lw $29,112($sp)
+  /*lw $29,112($sp)*/
   lw $28,108($sp)
   lw $27,104($sp)
   lw $26,100($sp)
@@ -131,7 +131,6 @@ intr_softerr:
 
 .set noreorder
 .global intr_syscall
-
 intr_syscall:
 
   rdpgpr  $sp, $sp
@@ -157,10 +156,10 @@ intr_syscall:
 
   sw $31,120($sp)
   sw $30,116($sp)
-  sw $29,112($sp)
+  /*sw $29,112($sp)*/
   sw $28,108($sp)
-  sw $27,104($sp)
-  sw $26,100($sp)
+  /*sw $27,104($sp)*/
+  /*sw $26,100($sp)*/
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)
@@ -206,7 +205,7 @@ intr_syscall:
 
   lw $31,120($sp)
   lw $30,116($sp)
-  lw $29,112($sp)
+  /*lw $29,112($sp)*/
   lw $28,108($sp)
   lw $27,104($sp)
   lw $26,100($sp)
@@ -263,8 +262,8 @@ intr_syscall:
 
 
   .set noreorder
-  .global intr_serintr
-  intr_serintr:
+  .global IRQ_intr
+  IRQ_intr:
   rdpgpr  $sp, $sp
   mfc0    $k0, $13        /* read CAUSE register */
   mfc0    $k1, $14        /* read EPC (Exception Program Counter) register */
@@ -285,7 +284,7 @@ intr_syscall:
 
   sw $31,120($sp)
   sw $30,116($sp)
-  sw $29,112($sp)
+  /*sw $29,112($sp)*/
   sw $28,108($sp)
   sw $27,104($sp)
   sw $26,100($sp)
@@ -310,14 +309,14 @@ intr_syscall:
   sw $7,24($sp)
   sw $6,20($sp)
   sw $5,16($sp)
-  sw $4,12($sp)
+  /*sw $4,12($sp)*/
   sw $3,8($sp)
   sw $2,4($sp)
   sw $1,($sp)
 
   move	$fp,$sp
 
-	li $a0,SOFTVEC_TYPE_SERINTR
+	/*li $a0,SOFTVEC_EACH_TYPE*/
   move $a1,$sp
 
   la $sp, _intrstack
@@ -331,7 +330,7 @@ intr_syscall:
 
   lw $31,120($sp)
   lw $30,116($sp)
-  lw $29,112($sp)
+  /*lw $29,112($sp)*/
   lw $28,108($sp)
   lw $27,104($sp)
   lw $26,100($sp)
