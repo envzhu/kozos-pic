@@ -3,7 +3,8 @@
 #include "xmodem.h"
 #include "lib.h"
 #include "hardware.h"
-#include "elf.h"
+//#include "elf.h"
+#include "ihex.h"
 #include "interrupt.h"
 #include "intr.h"
 
@@ -67,7 +68,7 @@ int main(void)
 
   init();
 
-  puts("kzload (kozos boot loader) started.\n");
+  puts("kzload (kozos boot loader) ver. 1.01 started.\n");
 
   while (1) {
     puts("kzload> "); /* プロンプト表示 */
@@ -75,7 +76,7 @@ int main(void)
 
     if (!strcmp(buf, "load")) { /* XMODEMでのファイルのダウンロード */
       loadbuf = (char *)(&buffer_start);
-      size = xmodem_recv(loadbuf);
+      size = xmodem_recv(NULL);
       wait(); /* 転送アプリが終了し端末アプリに制御が戻るまで待ち合わせる */
       if (size < 0) {
 	puts("\nXMODEM receive error!\n");
@@ -88,14 +89,14 @@ int main(void)
       puts("\n");
       dump(loadbuf, size);
     } else if (!strcmp(buf, "run")) { /* ELF形式ファイルの実行 */
-      entry_point = elf_load(loadbuf); /* メモリ上に展開(ロード) */
+      entry_point = ihex_startaddr(); /* メモリ上に展開(ロード) */
       if (!entry_point) {
 	puts("run error!\n");
       } else {
 	puts("starting from entry point: ");
 	putxval((unsigned long)entry_point, 0);
 	puts("\n");
-  init_BMX();
+  init_BMX(entry_point);
 	f = (void (*)(void))entry_point;
 	f(); /* ここで，ロードしたプログラムに処理を渡す */
 	/* ここには返ってこない */

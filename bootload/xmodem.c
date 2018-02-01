@@ -1,6 +1,7 @@
 #include "defines.h"
 #include "serial.h"
 #include "lib.h"
+#include "ihex.h"
 #include "xmodem.h"
 
 #define XMODEM_SOH 0x01
@@ -45,7 +46,8 @@ static int xmodem_read_block(unsigned char block_number, char *buf)
   check_sum = 0;
   for (i = 0; i < XMODEM_BLOCK_SIZE; i++) {
     c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
-    *(buf++) = c;
+    //*(buf++) = c;
+    ihex_decode(c);
     check_sum += c;
   }
 
@@ -75,18 +77,18 @@ long xmodem_recv(char *buf)
       return -1;
     } else if (c == XMODEM_SOH) { /* 受信開始 */
       receiving++;
-      r = xmodem_read_block(block_number, buf); /* ブロック単位での受信 */
+      r = xmodem_read_block(block_number, NULL); /* ブロック単位での受信 */
       if (r < 0) { /* 受信エラー */
-	serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
+	      serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
       } else { /* 正常受信 */
-	block_number++;
-	size += r;
-	buf  += r;
-	serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_ACK);
+        block_number++;
+        size += r;
+        //buf  += r;
+	      serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_ACK);
       }
     } else {
       if (receiving)
-	return -1;
+	      return -1;
     }
   }
 
