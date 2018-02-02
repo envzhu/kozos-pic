@@ -68,7 +68,7 @@ int main(void)
 
   init();
 
-  puts("kzload (kozos boot loader) ver. 1.01 started.\n");
+  puts("kzload (kozos boot loader) ver. 1.02 started.\n");
 
   while (1) {
     puts("kzload> "); /* プロンプト表示 */
@@ -96,10 +96,11 @@ int main(void)
 	puts("starting from entry point: ");
 	putxval((unsigned long)entry_point, 0);
 	puts("\n");
-  init_BMX(entry_point);
+  init_BMX((uint32)entry_point);
 	f = (void (*)(void))entry_point;
 	f(); /* ここで，ロードしたプログラムに処理を渡す */
 	/* ここには返ってこない */
+  puts("\nreturn to kzload from RAM memory\n");
       }
     } else {
       puts("unknown.\n");

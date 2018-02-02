@@ -35,6 +35,7 @@ void kz_srvcall(kz_syscall_type_t type, kz_syscall_param_t *param);
 
 /* システム・タスク */
 int consdrv_main(int argc, char *argv[]);
+int tmrdrv_main(int argc, char *argv[]);
 
 /* ユーザ・タスク */
 int command_main(int argc, char *argv[]);
