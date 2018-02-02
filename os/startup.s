@@ -2,12 +2,12 @@
 .section .text,"ax",@progbits
 .set noreorder
 .ent _startup
-.global _startup
-_startup:
+.global _start
+_start:
   la $sp, _bootstack
   j main
   nop
-.end _startup
+.end _start
 
 .set  noat
 .set noreorder

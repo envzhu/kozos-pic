@@ -3,6 +3,7 @@
 
 #define NULL ((void *)0)
 #define SERIAL_DEFAULT_DEVICE 1
+#define TMR_DEFAULT_DEVICE 0
 
 typedef unsigned char  uint8;
 typedef unsigned short uint16;
@@ -15,6 +16,8 @@ typedef void (*kz_handler_t)(void);
 typedef enum {
   MSGBOX_ID_CONSINPUT = 0,
   MSGBOX_ID_CONSOUTPUT,
+  MSGBOX_ID_TMRINPUT,
+  MSGBOX_ID_TMROUTPUT,
   MSGBOX_ID_NUM
 } kz_msgbox_id_t;
 
