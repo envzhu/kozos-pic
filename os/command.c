@@ -28,20 +28,6 @@ static void send_write(char *str)
   kz_send(MSGBOX_ID_CONSOUTPUT, len + 2, p);
 }
 
-static void tmr_sleep(int msec){
-  char *p;
-  p = kz_kmalloc(6);
-  p[0] = '0' + TMR_DEFAULT_DEVICE;
-  p[1] = TMRDRV_CMD_START;
-  p[2] = msec>>24;
-  p[3] = (msec>>16)&0xFF;
-  p[4] = (msec>>8)&0xFF;
-  p[5] = msec&0xFF;
-
-  kz_send(MSGBOX_ID_TMROUTPUT, 6, p);
-  kz_recv(MSGBOX_ID_TMRINPUT, NULL, NULL);
-}
-
 int command_main(int argc, char *argv[])
 {
   char *p;

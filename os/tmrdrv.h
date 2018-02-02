@@ -6,4 +6,6 @@
 #define TMRDRV_CMD_START  's' /* タイマのスタート */
 #define TMRDRV_CMD_CANCEL 'c' /* タイマのキャンセル */
 
+void tmr_sleep(int msec);
+
 #endif
