@@ -62,8 +62,8 @@ void tmr_stop(tmrbuf *p_timerbuf)
 		p_timerbuf->prev->next = p_timerbuf->next;
 		p_timerbuf->next->prev = p_timerbuf->prev;
 	}
+	kx_wakeup(p_timerbuf->id);
 	kx_kmfree(p_timerbuf);
-	kx_send(MSGBOX_ID_TMROUTPUT, 0, NULL);
 }
 
 static tmrbuf *tmrbuf_find(kz_thread_id_t id)
@@ -187,5 +187,5 @@ void tmr_sleep(int msec){
   p[5] = msec&0xFF;
 
   kz_send(MSGBOX_ID_TMRINPUT, 6, p);
-  kz_recv(MSGBOX_ID_TMROUTPUT, NULL, NULL);
+	kz_sleep();
 }
