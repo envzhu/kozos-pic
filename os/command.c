@@ -46,7 +46,7 @@ int command_main(int argc, char *argv[])
       send_write(p + 4); /* echoに続く文字列を出力する */
       send_write("\n");
     } else if (!strncmp(p, "wait", 4)) { /* waitコマンド */
-      tmr_sleep(1000);
+      tmr_sleep(0x3E8);
     } else {
       send_write("unknown.\n");
     }

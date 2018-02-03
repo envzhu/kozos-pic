@@ -21,8 +21,8 @@ static int start_threads(int argc, char *argv[])
 }
 static int init(void)
 {
-  extern int _data_start, _edata, _bss_start, _ebss;
-  memset(&_bss_start, 0, (uint32)&_ebss - (uint32)&_edata);
+  extern int _data_start, _edata, _bss_start, _ebss, _text_start;
+  memset(&_bss_start, 0, (uint32)&_text_start - (uint32)&_bss_start);
   return 0;
 }
 

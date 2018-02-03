@@ -133,3 +133,26 @@ int putxval(unsigned long value, int column)
 
   return 0;
 }
+
+/* 数値の10進表示 */
+int putdval(unsigned long value, int column)
+{
+  char buf[9];
+  char *p;
+
+  p = buf + sizeof(buf) - 1;
+  *(p--) = '\0';
+
+  if (!value && !column)
+    column++;
+  
+  while (value || column) {
+    *(p--) = "0123456789"[value % 10];
+    value /= 10;
+    if (column) column--;
+  }
+
+  puts(p + 1);
+
+  return 0;
+}
