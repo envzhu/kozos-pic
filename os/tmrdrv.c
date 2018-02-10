@@ -6,7 +6,7 @@
 #include "lib.h"
 #include "tmrdrv.h"
 
-#define TMRDRV_DEVICE_NUM 1
+#define TMRDRV_DEVICE_NUM 4
 #define TMRDRV_CMD_USE    'u' /* タイマ・ドライバの使用開始 */
 #define TMRDRV_CMD_START  's' /* タイマのスタート */
 #define TMRDRV_CMD_CANCEL 'c' /* タイマのキャンセル */
@@ -16,7 +16,8 @@ typedef struct _tmrbuf {
 	struct _tmrbuf *next;
 	int index;
 	kz_thread_id_t id;
-	int msec;
+	int cn_msec;
+	int buf_msec;
 }tmrbuf;
 
 static struct tmrreg {
@@ -29,10 +30,13 @@ static struct tmrreg {
 static void tmr_start(int index, kz_thread_id_t id, int msec)
 {
 	putxval(msec, 0);
+	puts("\n");
 	tmrbuf *p_tmrbuf = kz_kmalloc(sizeof(*p_tmrbuf));
+
 	p_tmrbuf->index = index;
 	p_tmrbuf->id = id;
-	p_tmrbuf->msec = msec;
+	p_tmrbuf->cn_msec = msec;
+	p_tmrbuf->buf_msec = msec;
 	if(tmrreg[index].tail){
 		tmrreg[index].tail->next = p_tmrbuf;
 		p_tmrbuf->prev = tmrreg[index].tail;
@@ -100,12 +104,15 @@ static inline void tmrdrv_intrproc(struct tmrreg *tmr)
 {
 	tmrbuf *p_timerbuf;
 	p_timerbuf = tmr->head;
+
 	timer_expire(p_timerbuf->index);
 	do{
-		p_timerbuf->msec--;
-		if(p_timerbuf->msec==0){
+		p_timerbuf->cn_msec--;
+		if(p_timerbuf->cn_msec==0){
 			puts("tmrdrv_intrproc\n");
-			tmr_stop(p_timerbuf);
+			p_timerbuf->cn_msec = p_timerbuf->buf_msec;
+			puts("interval\n");
+			kx_wakeup(p_timerbuf->id);
 		}
 	}while((p_timerbuf->next == NULL) && (p_timerbuf = p_timerbuf->next));
 }
@@ -165,7 +172,7 @@ int tmrdrv_main(int argc, char *argv[])
 	kz_setintr(SOFTVEC_TYPE_TMRINTR, tmrdrv_intr); /* 割込みハンドラ設定 */
 
   while (1) {
-    id = kz_recv(MSGBOX_ID_TMRINPUT, &size, &p);
+    id = kz_recv(MSGBOX_ID_TMRDRV, &size, &p);
     index = p[0] - '0';
     tmrdrv_command(index, id, size - 1, p + 1);
     kz_kmfree(p);
@@ -174,8 +181,7 @@ int tmrdrv_main(int argc, char *argv[])
   return 0;
 }
 
-
-void tmr_sleep(int msec){
+void send_tmrset(int msec){
   char *p;
 	putxval(msec, 0);
   p = kz_kmalloc(6);
@@ -186,6 +192,24 @@ void tmr_sleep(int msec){
   p[4] = (msec>>8)&0xFF;
   p[5] = msec&0xFF;
 
-  kz_send(MSGBOX_ID_TMRINPUT, 6, p);
+  kz_send(MSGBOX_ID_TMRDRV, 6, p);
+}
+
+void send_tmrstop(void){
+  char *p;
+
+  p = kz_kmalloc(2);
+  p[0] = '0' + TMR_DEFAULT_DEVICE;
+  p[1] = TMRDRV_CMD_CANCEL;
+  kz_send(MSGBOX_ID_TMRDRV, 2, p);
+}
+
+inline void tmr_sleep(int msec){
+	send_tmrset(msec);
 	kz_sleep();
+	send_tmrstop();
+}
+
+inline void tmr_interval(int msec){
+	send_tmrset(msec);
 }
