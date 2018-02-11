@@ -64,3 +64,5 @@ obj_clean :
 
 clean :
 		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).hex
+line:
+		wc -l *.c *.h *.s *.S ld.scr Makefile

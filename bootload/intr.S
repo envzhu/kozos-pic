@@ -1,6 +1,7 @@
 #include "intr.h"
 
 .section .text
+.set noat
 .set noreorder
 .global sys_intr
 sys_intr:

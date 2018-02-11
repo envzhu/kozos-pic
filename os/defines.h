@@ -4,7 +4,8 @@
 #define NULL ((void *)0)
 #define SERIAL_DEFAULT_DEVICE 1
 #define TMR_DEFAULT_DEVICE 0
-#define F_PBCLK 48000000
+#define F_SYSCLK 	48000000
+#define F_PBCLK 	48000000
 
 typedef unsigned char  uint8;
 typedef unsigned short uint16;

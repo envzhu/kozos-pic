@@ -46,10 +46,13 @@ int command_main(int argc, char *argv[])
       send_write(p + 4); /* echoに続く文字列を出力する */
       send_write("\n");
     } else if (!strncmp(p, "wait", 4)) { /* waitコマンド */
-      tmr_interval(0x1000);
+      tmr_interval(TMR_DEFAULT_DEVICE, 0x1000);
+      int i=1;
       while(1){
         kz_sleep();
-        puts("hage\n");
+        putxval(i, 0);
+        puts("\n");
+        i++;
       }
     } else {
       send_write("unknown.\n");
