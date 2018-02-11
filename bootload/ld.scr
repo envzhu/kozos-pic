@@ -186,11 +186,11 @@ SECTIONS
         { KEEP(*(.vector_42)) } > vectors_mem
 
 
-  	.text : {
-  		_text_start = . ;
-  		*(.text)
-  		_etext = . ;
-  	} > program_mem
+	.text : {
+		_text_start = . ;
+		*(.text)
+		_etext = . ;
+	} > program_mem
 
 
   .rodata : {
