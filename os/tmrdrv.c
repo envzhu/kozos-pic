@@ -181,11 +181,11 @@ int tmrdrv_main(int argc, char *argv[])
   return 0;
 }
 
-void send_tmrset(int msec){
+void send_tmrset(int index, int msec){
   char *p;
 	putxval(msec, 0);
   p = kz_kmalloc(6);
-  p[0] = '0' + TMR_DEFAULT_DEVICE;
+  p[0] = '0' + index;
   p[1] = TMRDRV_CMD_START;
   p[2] = msec>>24;
   p[3] = (msec>>16)&0xFF;
@@ -199,17 +199,17 @@ void send_tmrstop(void){
   char *p;
 
   p = kz_kmalloc(2);
-  p[0] = '0' + TMR_DEFAULT_DEVICE;
+  p[0] = '\0';
   p[1] = TMRDRV_CMD_CANCEL;
   kz_send(MSGBOX_ID_TMRDRV, 2, p);
 }
 
-inline void tmr_sleep(int msec){
-	send_tmrset(msec);
+inline void tmr_sleep(int index, int msec){
+	send_tmrset(index, msec);
 	kz_sleep();
 	send_tmrstop();
 }
 
-inline void tmr_interval(int msec){
-	send_tmrset(msec);
+inline void tmr_interval(int index, int msec){
+	send_tmrset(index, msec);
 }

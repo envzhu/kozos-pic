@@ -15,7 +15,7 @@ STRIP   = $(ADDNAME)strip
 BIN2HEX = $(ADDNAME)bin2hex
 
 
-OBJS  = startup.o main.o interrupt.o
+OBJS  = startup.o main.o hardware.o interrupt.o
 OBJS += lib.o serial.o
 
 # sources of kozos
@@ -63,4 +63,4 @@ clean :
 		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).hex
 
 line:
-		wc -l *.c *.h ld.scr Makefile
+		wc -l *.c *.h *.s *.S ld.scr Makefile
