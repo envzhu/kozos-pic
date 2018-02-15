@@ -15,13 +15,13 @@ MEMORY
 	intrstack(rw)	: o = 0xA0007FFC, l = 0x000000 /* end of RAM */
 
 	 /* Text region :16KB (0xA0000000+BMXDKPBA) ~ 0xA000FFFF(0xA0000000+BMXDUDBA-1)*/
-  	program_ram(rwx)	: o = 0xA000C000, l = 0x04000
+	program_ram(rwx)	: o = 0xA000C000, l = 0x04000
 }
 
 SECTIONS
 {
 	.softvec : {
-	softvec = .;
+		softvec = .;
 	} > softvec
 
 	.rodata : {
