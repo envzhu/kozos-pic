@@ -409,55 +409,78 @@ static int thread_setintr(softvec_type_t type, kz_handler_t handler)
   return 0;
 }
 
+void call_run(kz_syscall_param_t *p){
+  p->un.run.ret = thread_run(p->un.run.func, p->un.run.name,
+            p->un.run.priority, p->un.run.stacksize,
+            p->un.run.argc, p->un.run.argv);
+}
+
+void call_exit(kz_syscall_param_t *p){
+  thread_exit();
+}
+
+void call_wait(kz_syscall_param_t *p){
+  p->un.wait.ret = thread_wait();
+}
+
+void call_sleep(kz_syscall_param_t *p){
+  p->un.sleep.ret = thread_sleep();
+}
+
+void call_wakeup(kz_syscall_param_t *p){
+  p->un.wakeup.ret = thread_wakeup(p->un.wakeup.id);
+}
+void call_getid(kz_syscall_param_t *p){
+  p->un.getid.ret = thread_getid();
+}
+
+void call_chpri(kz_syscall_param_t *p){
+  p->un.chpri.ret = thread_chpri(p->un.chpri.priority);
+}
+
+void call_kmalloc(kz_syscall_param_t *p){
+  p->un.kmalloc.ret = thread_kmalloc(p->un.kmalloc.size);
+}
+
+void call_kmfree(kz_syscall_param_t *p){
+  p->un.kmfree.ret = thread_kmfree(p->un.kmfree.p);
+}
+
+void call_send(kz_syscall_param_t *p){
+  p->un.send.ret = thread_send(p->un.send.id,
+			p->un.send.size, p->un.send.p);
+}
+void call_recv(kz_syscall_param_t *p){
+  p->un.recv.ret = thread_recv(p->un.recv.id,
+			p->un.recv.sizep, p->un.recv.pp);
+}
+
+void call_setintr(kz_syscall_param_t *p){
+  p->un.setintr.ret = thread_setintr(p->un.setintr.type,
+      p->un.setintr.handler);
+}
+
+
+void (*functions[])(kz_syscall_param_t *p) = 
+{
+  call_run,
+  call_exit,
+  call_wait,
+  call_sleep,
+  call_wakeup,
+  call_getid,
+  call_chpri,
+  call_kmalloc,
+  call_kmfree,
+  call_send,
+  call_recv,
+  call_setintr
+};
+
 static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p)
 {
   /* システム・コールの実行中にcurrentが書き換わるので注意 */
-  switch (type) {
-  case KZ_SYSCALL_TYPE_RUN: /* kz_run() */
-    p->un.run.ret = thread_run(p->un.run.func, p->un.run.name,
-			       p->un.run.priority, p->un.run.stacksize,
-			       p->un.run.argc, p->un.run.argv);
-    break;
-  case KZ_SYSCALL_TYPE_EXIT: /* kz_exit() */
-    /* TCBが消去されるので，戻り値を書き込んではいけない */
-    thread_exit();
-    break;
-  case KZ_SYSCALL_TYPE_WAIT: /* kz_wait() */
-    p->un.wait.ret = thread_wait();
-    break;
-  case KZ_SYSCALL_TYPE_SLEEP: /* kz_sleep() */
-    p->un.sleep.ret = thread_sleep();
-    break;
-  case KZ_SYSCALL_TYPE_WAKEUP: /* kz_wakeup() */
-    p->un.wakeup.ret = thread_wakeup(p->un.wakeup.id);
-    break;
-  case KZ_SYSCALL_TYPE_GETID: /* kz_getid() */
-    p->un.getid.ret = thread_getid();
-    break;
-  case KZ_SYSCALL_TYPE_CHPRI: /* kz_chpri() */
-    p->un.chpri.ret = thread_chpri(p->un.chpri.priority);
-    break;
-  case KZ_SYSCALL_TYPE_KMALLOC: /* kz_kmalloc() */
-    p->un.kmalloc.ret = thread_kmalloc(p->un.kmalloc.size);
-    break;
-  case KZ_SYSCALL_TYPE_KMFREE: /* kz_kmfree() */
-    p->un.kmfree.ret = thread_kmfree(p->un.kmfree.p);
-    break;
-  case KZ_SYSCALL_TYPE_SEND: /* kz_send() */
-    p->un.send.ret = thread_send(p->un.send.id,
-				 p->un.send.size, p->un.send.p);
-    break;
-  case KZ_SYSCALL_TYPE_RECV: /* kz_recv() */
-    p->un.recv.ret = thread_recv(p->un.recv.id,
-				 p->un.recv.sizep, p->un.recv.pp);
-    break;
-  case KZ_SYSCALL_TYPE_SETINTR: /* kz_setintr() */
-    p->un.setintr.ret = thread_setintr(p->un.setintr.type,
-				       p->un.setintr.handler);
-    break;
-  default:
-    break;
-  }
+  functions[type](p);
 }
 
 /* システム・コールの処理 */
