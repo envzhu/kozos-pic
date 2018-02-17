@@ -6,6 +6,8 @@
 #include "lib.h"
 #include "consdrv.h"
 
+#define BACKSPACE 0x08
+#define DEL 0x7f
 #define CONS_BUFFER_SIZE 24
 
 static struct consreg {
@@ -78,18 +80,26 @@ static int consdrv_intrproc(struct consreg *cons)
     if (c == '\r') /* 改行コード変換(\r→\n) */
       c = '\n';
 
-    send_string(cons, &c, 1); /* エコーバック処理 */
-
     if (cons->id) {
-      if (c != '\n') {
-	/* 改行でないなら，受信バッファにバッファリングする */
-	cons->recv_buf[cons->recv_len++] = c;
+      if ((c != '\n')&&(cons->recv_len<CONS_BUFFER_SIZE-1)) {
+  send_string(cons, &c, 1); /* エコーバック処理 */
+  /* 改行でない,かつ，バッファが満タンでないなら、受信バッファにバッファリングする */
+	  if(c == BACKSPACE){
+    /* バックスペースなら一字戻す */
+      if(cons->recv_len>0){
+        cons->recv_buf[cons->recv_len]=0;
+        cons->recv_len--;
+      }
+    }else
+  cons->recv_buf[cons->recv_len++] = c;
       } else {
 	/*
-	 * Enterが押されたら，バッファの内容を
-	 * コマンド処理スレッドに通知する．
+	 * Enterが押されたら，
+   * または,バッファが満タンになったら、強制的に
+   * バッファの内容をコマンド処理スレッドに通知する．
 	 * (割込みハンドラなので，サービス・コールを利用する)
 	 */
+  send_string(cons, "\n", 1); /* 改行する */
 	p = kx_kmalloc(CONS_BUFFER_SIZE);
 	memcpy(p, cons->recv_buf, cons->recv_len);
 	kx_send(MSGBOX_ID_CONSINPUT, cons->recv_len, p);
