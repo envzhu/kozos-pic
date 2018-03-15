@@ -32,9 +32,7 @@ At first you need to verify bootloader to PIC.Verify `./bootload/kzload.hex` to 
 Next, load `./os/kozos.hex` to RAM of the target by XMODEM transfer.
 
 ## License
-KOZOS-PIC is released under KL-01 license.(See KL-01 file)  
-But the document is written in only Japanese.  
-So I wil change to BSD license in recently feature. 
+KOZOS-PIC is released under MIT license.
 
 ## Contact
 If you are find something wrong with this OS or my English, please tell me because I am beginner at programing and English.Of course, I welcome your quetions,too.  

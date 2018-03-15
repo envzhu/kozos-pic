@@ -1,0 +1,8 @@
+.vscode/
+./bootload/kzload
+./bootload/kzload.elf
+./bootload/kzload.hex
+./os/kozos
+./os/kozos.elf
+./os/kozos.hex
+*.o
