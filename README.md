@@ -1,6 +1,20 @@
 # KOZOS-PIC
+※日本語は下の方にあります。  
+
+## Overview
+This is a Embeded OS for PIC32MX270F256B based on Japanese "[KOZOS](http://kozos.jp/kozos/)" which is developped for learning.  
+This repositry consists of that bootloader and OS.
+This OS is developped with full scratch programing.
+
+## License
+KOZOS-PIC is released under MIT license.
+
+## Contact
+If you are find something wrong with this OS or my English, please tell me because I am beginner at programing and English.Of course, I welcome your quetions,too.  
+Twitter : @envzhu
+
 ## ソースコード整理中
-　学習用組込みOS「[KOZOS](http://kozos.jp/kozos/)」の書籍版「[12ステップで作る 組込みOS自作入門](https://www.amazon.co.jp/gp/product/4877832394/)」をPIC(MIPS)に移植したものです。
+　[ここ](https://github.com/envzhu/kozosbook-pic)で学習用組込みOS「[KOZOS](http://kozos.jp/kozos/)」をPIC(MIPS)に移植して、それを発展させたものです。
 ターゲットはPIC32MX270F256Bを想定しています。
 
 ## ブレッドボード図
