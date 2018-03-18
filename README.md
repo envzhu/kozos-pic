@@ -12,13 +12,13 @@ The loaded file must be hex file format.
 
 ### OS
 `KOZOS` ver.1.1.0 has functions like below.  
-	- Memory Management
-	- Thread Managemnt
-		- Multi Task
-		- Message Box
+- Memory Management
+- Thread Managemnt
+	- Multi Task
+	- Message Box
 	
-	And has a driver like below
-	- Serial Driver
+And has a driver like below
+- Serial Driver
 
 ## License
 KOZOS-PIC is released under MIT license.

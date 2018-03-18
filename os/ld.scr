@@ -5,16 +5,18 @@ ENTRY("_start")
 /*BMXDKPBA=0xC000 BMXDUDBA=0x10000 BMXDUPBA=0x10000*/
 MEMORY
 {
-	ramall(rwx)		: o = 0xA0000000, l = 0x010000 /* 64KB */
-	softvec(rw)	    : o = 0xA0000000, l = 0x000100 /* top of RAM */
+	ramall(rwx)	  : o = 0xA0000000, l = 0x010000 /* 64KB */
+	softvec(rw)	  : o = 0xA0000000, l = 0x000100 /* top of RAM */
 
 	/* Data region : 16KB 0xA0001000 ~ 0xA0005FFF(=0xA0000000+BMXDKPBA-1) */
  	data_ram(rwx)	: o = 0xA0001000, l = 0x004000
+
+	/* Stack */ 
 	userstack(rw)	: o = 0xA0006FFC, l = 0x000000 /* end of data_ram */
 	bootstack(rw)	: o = 0xA0007FFC, l = 0x000000
 	intrstack(rw)	: o = 0xA0007FFC, l = 0x000000 /* end of RAM */
 
-	 /* Text region :32KB 0xA0008000(0xA0000000+BMXDKPBA) ~ 0xA000FFFF(0xA0000000+BMXDUDBA-1)*/
+	/* Text region :32KB 0xA0008000(0xA0000000+BMXDKPBA) ~ 0xA000FFFF(0xA0000000+BMXDUDBA-1)*/
 	program_ram(rwx)	: o = 0xA0008000, l = 0x08000
 }
 
