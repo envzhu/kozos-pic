@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "hardware.h"
 #include "io.h"
 
@@ -125,12 +126,12 @@ void system_init(void)
 
 
 
-void init_BMX(void){
+void init_BMX(void *addr){
   #define BMXDKPBA    *((volatile unsigned int *)0xBF882010)
   #define BMXDUDBA    *((volatile unsigned int *)0xBF882020)
   #define BMXDUPBA    *((volatile unsigned int *)0xBF882030)
 
-  BMXDKPBA = 0xC000;
+  BMXDKPBA = ((uint32)addr) & 0x1FFFF;
   BMXDUDBA = 0x10000;
   BMXDUPBA = 0x10000;
 }

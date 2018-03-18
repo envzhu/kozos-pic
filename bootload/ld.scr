@@ -25,10 +25,9 @@ MEMORY
   
   ramall(rx)        : o = 0xA0000000, l = 0x10000 /* 64KB */
   softvec(rw)	      : o = 0xA0000000, l = 0x100   /* top of RAM */
-  buffer(rwx)	      : o = 0xA0000100, l = 0x7000  /* 28KB */
-  data_mem (wx)     : o = 0xA0007100, l = 0xC00   /* ram memory 32KB */
+  data_mem (wx)     : o = 0xA0000100, l = 0xF00   /* data memory 3.75KB */
   bootstack(rw)	    : o = 0xA0007FFC, l = 0x0
-  intrstack(rw)	    : o = 0xA0007FFC, l = 0x0     /* end of RAM */
+  intrstack(rw)	    : o = 0xA0007FFC, l = 0x0
 }
 
 
@@ -198,12 +197,6 @@ SECTIONS
     *(.rodata.*)
     _erodata = . ;
   } > program_mem
-
-  . = ALIGN(4) ;
-
-  .buffer : {
-    buffer_start = . ;
-  } > buffer
 
 	.data : {
 		_data_start = . ;

@@ -22,7 +22,7 @@ int main(void)
 {
   INTR_DISABLE; /* 割込み無効にする */
 
-  puts("KOZOS-PIC ver.1.00 boot succeed!\n");
+  puts("KOZOS-PIC ver.1.1.0 boot succeed!\n");
 
   /* OSの動作開始 */
   kz_start(start_threads, "idle", 0, 0x200, 0, NULL);
