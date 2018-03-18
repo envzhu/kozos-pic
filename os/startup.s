@@ -4,6 +4,14 @@
 .ent _start
 .global _start
 _start:
+  la $t1, _ebase_address
+  mtc0 $t1, $15, 1              # EBASE register points to interrupt vector table
+
+  /*la $t1, _vector_spacing
+  li $t2, 0
+  ins $t2, $t1, 5, 5
+  mtc0 $t2, $12, 1*/              # INTCTL register specifies vectors positions
+
   la $sp, _bootstack
   j main
   nop

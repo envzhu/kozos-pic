@@ -1,4 +1,8 @@
-## [ver.1.0.0]
+## [ver.1.1.1]
+### Changed
+- Change Interrupt exception vector address from ROM  to RAM.
+
+## [ver.1.1.0]
 ### Changed
 -  Change linker script to enable to use more memory.(see `os/ld.scr`)
 	- Data memory 		: 16KB
