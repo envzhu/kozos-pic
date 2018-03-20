@@ -45,7 +45,7 @@ int main(void)
 
   init();
 
-  puts("kzload (kozos boot loader) ver.1.1.0 started.\n");
+  puts("kzload (kozos boot loader) started.\n");
 
   while (1) {
     puts("kzload> "); /* プロンプト表示 */
