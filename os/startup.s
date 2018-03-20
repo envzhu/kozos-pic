@@ -7,10 +7,10 @@ _start:
   la $t1, _ebase_address
   mtc0 $t1, $15, 1              # EBASE register points to interrupt vector table
 
-  /*la $t1, _vector_spacing
+  la $t1, _vector_spacing
   li $t2, 0
   ins $t2, $t1, 5, 5
-  mtc0 $t2, $12, 1*/              # INTCTL register specifies vectors positions
+  mtc0 $t2, $12, 1              # INTCTL register specifies vectors positions
 
   la $sp, _bootstack
   j main
@@ -22,7 +22,29 @@ _start:
 .global dispatch
 .ent dispatch
 dispatch:
+  /* 今後、多重割り込みに対応した時の為に、一応割り込みを禁止にする */
+  di
+
+  /*stall until execution hazards are cleared */
+  ehb
+
   lw	$sp,0($a0)
+
+  /* restore STATUS from stack */
+  lw	$k0, 136($sp)
+  mtc0	$k0, $12
+
+  /* restore EPC from stack */
+  lw	$k0, 132($sp)
+  mtc0	$k0, $14
+  
+  /* restore hi from stack */
+  lw	$k0, 128($sp)
+  mthi	$k0
+  
+  /* restore lo from stack */
+  lw	$k0, 124($sp)
+  mtlo	$k0
 
   lw $31,120($sp)
   lw $30,116($sp)
@@ -56,24 +78,8 @@ dispatch:
   lw $2,4($sp)
   lw $1,($sp)
 
-  di                      /* disable interrupts - just in case ? where enabled ? */
-  ehb
-
-  lw	$k0, 124($sp)
-  mtlo	$k0       /*lo*/
-
-  lw	$k0, 128($sp)
-  mthi	$k0       /*hi*/
-
-  lw	$k0, 132($sp)       /* restore EPC from stack */
-  mtc0	$k0, $14
-
-
-  lw	$k0, 136($sp)
-  /* restore stack pointer */
-  mtc0	$k0, $12
-
   addiu	$sp, $sp, 140
+
   eret
   nop
 .end dispatch

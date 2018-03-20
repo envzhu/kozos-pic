@@ -4,7 +4,7 @@ ENTRY("_start")
 
 /* Interrupt vector static definitions */
 PROVIDE(_vector_spacing = 0x00000001);
-PROVIDE(_ebase_address = 0xA000F800);
+PROVIDE(_ebase_address = 0xA000F000);
 
 
 /*BMXDKPBA=0x8000 BMXDUDBA=0x10000 BMXDUPBA=0x10000*/
@@ -22,8 +22,8 @@ MEMORY
 	intrstack(rw)	: o = 0xA0007FFC, l = 0x000000 /* end of RAM */
 
 	/* Text region :32KB 0xA0008000(0xA0000000+BMXDKPBA) ~ 0xA000FFFF(0xA0000000+BMXDUDBA-1)*/
-	program_ram(rwx)	: o = 0xA0008000, l = 0x7800
-  vectors_mem(rx)   : o = 0xA000F800, l = 0x0800    /* interrupt vectors area */
+	program_ram(rwx)	: o = 0xA0008000, l = 0x7000
+  vectors_mem(rx)   : o = 0xA000F000, l = 0x0800    /* interrupt vectors area */
 }
 
 SECTIONS
@@ -74,7 +74,7 @@ SECTIONS
    * They are 64 small code segments in sequence.
    */
       .vector_soft_intr _ebase_address + 0x180 :
-          { KEEP(*(.vector_soft_intr)) } > vectors_mem
+      { KEEP(*(.vector_soft_intr)) } > vectors_mem
 
       .vector_0 _ebase_address + 0x200 :
       { KEEP(*(.vector_0)) } > vectors_mem

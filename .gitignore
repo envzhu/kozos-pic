@@ -4,3 +4,4 @@ os/kozos
 *.elf
 *.hex
 *.o
+*.asm

@@ -184,10 +184,10 @@ static kz_thread_id_t thread_run(kz_func_t func, char *name, int priority,
 
   *(--sp) = (uint32)thread_end; /* $31 */
   *(--sp) = 0; /* $30 */
-  *(--sp) = 0;//skip $29
+  *(--sp) = 0; // skip $29
   *(--sp) = 0; /* $28 */
-  *(--sp) = 0;//skip $27
-  *(--sp) = 0;//skip $26
+  *(--sp) = 0; /* $27 */
+  *(--sp) = 0; /* $26 */
   *(--sp) = 0; /* $25 */
   *(--sp) = 0; /* $24 */
   *(--sp) = 0; /* $23 */
@@ -552,7 +552,7 @@ static void thread_intr(softvec_type_t type, unsigned long sp)
 
   /*
    * 割込みごとの処理を実行する．
-   * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_SOFTERR の場合は
+   * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_CPU_ERROR の場合は
    * syscall_intr(), softerr_intr() がハンドラに登録されているので，
    * それらが実行される．
    * それ以外の場合は，kz_setintr()によってユーザ登録されたハンドラが
@@ -589,7 +589,7 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize,
 
   /* 割込みハンドラの登録 */
   thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); /* システム・コール */
-  thread_setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); /* ダウン要因発生 */
+  thread_setintr(SOFTVEC_TYPE_CPU_ERROR, softerr_intr); /* ダウン要因発生 */
 
   /* システム・コール発行不可なので直接関数を呼び出してスレッド作成する */
   current = (kz_thread *)thread_run(func, name, priority, stacksize,
