@@ -1,6 +1,7 @@
 #include "defines.h"
 #include "kozos.h"
 #include "interrupt.h"
+#include "hardware.h"
 #include "lib.h"
 
 /* システム・タスクとユーザ・タスクの起動 */
@@ -18,9 +19,23 @@ static int start_threads(int argc, char *argv[])
   return 0;
 }
 
+static int init(void)
+{
+  extern int _data_start, _edata, _bss_start, _ebss, _text_start;
+
+  /* Init BSS rigion */
+  memset(&_bss_start, 0, (uint32)&_text_start - (uint32)&_bss_start);
+
+  system_init();
+
+  return 0;
+}
+
+
 int main(void)
 {
   INTR_DISABLE; /* 割込み無効にする */
+  init();
 
   puts("KOZOS-PIC boot succeed!\n");
 

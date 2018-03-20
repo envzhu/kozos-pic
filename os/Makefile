@@ -15,7 +15,7 @@ STRIP   = $(ADDNAME)strip
 BIN2HEX = $(ADDNAME)bin2hex
 
 
-OBJS  = startup.o main.o interrupt.o vector.o intr.o
+OBJS  = startup.o main.o hardware.o interrupt.o vector.o intr.o
 OBJS += lib.o serial.o
 
 # sources of kozos
