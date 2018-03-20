@@ -1,5 +1,6 @@
 #include "defines.h"
 #include "serial.h"
+#include "timer.h"
 #include "lib.h"
 
 void *memset(void *b, int c, long len)
@@ -133,3 +134,15 @@ int putxval(unsigned long value, int column)
 
   return 0;
 }
+
+int sleep_msec(unsigned int msec)
+{
+  timer_start(TMR_DEFAULT_DEVICE);
+  while(msec--){
+    while(!timer_is_expired(TMR_DEFAULT_DEVICE));
+    timer_expire(TMR_DEFAULT_DEVICE);
+  }
+  timer_stop(TMR_DEFAULT_DEVICE);
+  return 0;
+}
+

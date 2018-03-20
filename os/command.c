@@ -44,6 +44,8 @@ int command_main(int argc, char *argv[])
     if (!strncmp(p, "echo", 4)) { /* echoコマンド */
       send_write(p + 4); /* echoに続く文字列を出力する */
       send_write("\n");
+    } else if (!strncmp(p, "sleep", 5)) { /* echoコマンド */
+      sleep_msec(1000);
     } else {
       send_write("unknown.\n");
     }

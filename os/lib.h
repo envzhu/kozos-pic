@@ -15,4 +15,6 @@ int puts(unsigned char *str); /* 文字列送信 */
 int gets(unsigned char *buf); /* 文字列受信 */
 int putxval(unsigned long value, int column); /* 数値の16進表示 */
 
+int sleep_msec(unsigned int msec);/* msec 待つ */
+
 #endif

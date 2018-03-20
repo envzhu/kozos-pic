@@ -16,7 +16,7 @@ BIN2HEX = $(ADDNAME)bin2hex
 
 
 OBJS  = startup.o main.o hardware.o interrupt.o vector.o intr.o
-OBJS += lib.o serial.o
+OBJS += lib.o serial.o timer.o
 
 # sources of kozos
 OBJS += kozos.o syscall.o memory.o consdrv.o command.o
