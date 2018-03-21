@@ -7,18 +7,19 @@ This repositry consists of that bootloader and OS.
 This OS is developped with full scratch programing.  
 
 ### Bootloader
-`KZLOAD`(kozos boot loader) ver1.1.0 loads firmware on RAM memory by `XMODEM` transfer and execute that.  
+`KZLOAD`(kozos boot loader) loads firmware on RAM memory by `XMODEM` transfer and execute that.  
 The loaded file must be hex file format.
 
 ### OS
-`KOZOS` ver.1.1.0 has functions like below.  
+`KOZOS` has functions like below.  
 - Memory Management
 - Thread Managemnt
 	- Multi Task
 	- Message Box
 	
-And has a driver like below.
+And has drivers like below.
 - Serial Driver
+- Timer Driver
 
 ## Requirement
 - mips-elf-gcc

@@ -1,51 +1,59 @@
-   .section .startup,"ax",@progbits
-   .set noreorder
-   .global	_start
-   .ent _start
+  .section .startup,"ax",@progbits
+  .set noreorder
+  .global	_start
+  .ent _start
 _start:
-    la $sp, _bootstack
-    /*la $gp, _gp*/
 
-    mfc0    $t1, $12, 2
-    add     $t3, $t1, $0
-    ext     $t2, $t1, 26, 4
-    ins     $t1, $t2, 6, 4
-    mtc0    $t1, $12, 2
-    ehb
-    mtc0    $t3, $12, 2
+  /*
+   * Setup co-processor (CP0)
+   */
 
+  /* set up shadow register */ 
+  mfc0    $t1, $12, 2
+  add     $t3, $t1, $0
+  ext     $t2, $t1, 26, 4
+  ins     $t1, $t2, 6, 4
+  mtc0    $t1, $12, 2
+  ehb
+  mtc0    $t3, $12, 2     # SRSCtl register
 
-    /*
-    * Setup co-processor (CP0)
-    */
-    mtc0 $0, $9, 0                # COUNT register, time zero...
+  /* clear COUNT register */
+  mtc0 $0, $9, 0
 
-    li $t2, -1
-    mtc0 $t2, $11, 0              # COMPARE register, just in case
+  /* COMPARE register off */
+  li $t2, -1
+  mtc0 $t2, $11, 0
 
-    la $t1, _ebase_address
-    mtc0 $t1, $15, 1              # EBASE register points to interrupt vector table
+  /* set vector address */
+  la $t1, _ebase_address
+  mtc0 $t1, $15, 1        # EBASE register
 
-    la $t1, _vector_spacing
-    li $t2, 0
-    ins $t2, $t1, 5, 5
-    mtc0 $t2, $12, 1              # INTCTL register specifies vectors positions
+  /* set vector spacing */
+  la $t1, _vector_spacing
+  li $t2, 0
+  ins $t2, $t1, 5, 5
+  mtc0 $t2, $12, 1        # INTCTL register
 
-    li $t1, 0x00800000
-    mtc0 $t1, $13, 0              # CAUSE register: reset everything, set IV bit to enable vectored interrupts
+  /* set IV bit to enable vectored interrupts */
+  li $t1, 0x00800000
+  mtc0 $t1, $13, 0        # CAUSE register
 
-    li $t1, 0
-    mtc0 $t1, $12, 0              # STATUS register: reset everything: BEV = 0 (enable vectored interrupts), IPL = 0 (lowest priority run mode).
+  /* clear STATUS register */ 
+  mtc0 $0, $12, 0         # BEV = 0 (enable vectored interrupts), IPL = 0 (lowest priority run mode).
 
-    /*
-    * call main function.
-    */
-    and $a0, $a0, 0
-    and $a1, $a1, 0
-    jal main
-    nop
+  /*
+   * call main function.
+   */
+   
+  la $sp, _bootstack
+  /*la $gp, _gp*/
 
-    1:
-    j 1b
-    nop
+  and $a0, $a0, 0
+  and $a1, $a1, 0
+  jal main
+  nop
+
+  1:
+  j 1b
+  nop
 .end _start

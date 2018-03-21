@@ -50,8 +50,8 @@ SECTIONS
    * Interrupt vectors.
    * They are 64 small code segments in sequence.
    */
-   .vector_soft_intr _ebase_address + 0x180 :
-      { KEEP(*(.vector_soft_intr)) } > vectors_mem
+   .vector_general_exception _ebase_address + 0x180 :
+      { KEEP(*(.vector_general_exception)) } > vectors_mem
 
         .vector_0 _ebase_address + 0x200 :
         { KEEP(*(.vector_0)) } > vectors_mem

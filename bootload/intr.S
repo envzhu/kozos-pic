@@ -1,34 +1,18 @@
 #include "intr.h"
 
-.section .text
+.section .text,"ax",@progbits
 .set noat
 .set noreorder
-.global sys_intr
-sys_intr:
-  rdpgpr  $sp, $sp
-  mfc0    $k0, $13        /* read CAUSE register */
-  addiu   $sp, $sp, -140  /* 30 (!) words space on stack */
-  mfc0    $k1, $12        /* read STATUS register */
-  srl     $k0, $k0, 10    /* align RIPL (Requested Priority Level bits) to bit 0 */
-  sw      $k1, 136($sp)   /* save STATUS on stack */
-
-  ins     $k1, $k0, 10, 6 /* insert RIPL (Requested Priority Level bits) to IPL field */
-  mflo    $k0
-  sw      $k0, 124($sp)
-
-  mfhi    $k0
-  sw      $k0, 128($sp)
-  ins     $k1, $0, 1, 4
-  mtc0    $k1, $12        /* write STATUS register */
-
-
+.global _kernel_intr
+_kernel_intr:
+  addiu   $sp, $sp, -140  /* 35 words space on stack */
 
   sw $31,120($sp)
   sw $30,116($sp)
-  sw $29,112($sp)
+  /*sw $29,112($sp)*/
   sw $28,108($sp)
-  sw $27,104($sp)
-  sw $26,100($sp)
+  /*sw $27,104($sp)*/
+  /*sw $26,100($sp)*/
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)
@@ -50,31 +34,65 @@ sys_intr:
   sw $7,24($sp)
   sw $6,20($sp)
   sw $5,16($sp)
-  sw $4,12($sp)
+  /*sw $4,12($sp)*/
   sw $3,8($sp)
   sw $2,4($sp)
   sw $1,($sp)
 
+  /* save lo on stack */
+  mflo    $k0
+  sw      $k0, 124($sp)
 
+  /* save hi on stack */
+  mfhi    $k0
+  sw      $k0, 128($sp)
+  
+  /* save EPC on stack */
+  mfc0    $k1, $14
+  addiu   $k1, 4     /* EPC+=4 */
+  sw      $k1, 132($sp)
+
+  /* save STATUS on stack */
+  mfc0    $k1, $12
+  sw      $k1, 136($sp)
 
   move	$fp,$sp
 
 	/*li $a0,SOFTVEC_EACH_TYPE*/
   move $a1,$sp
-
   la $sp, _intrstack
-
-
 	jal	interrupt
   nop
 
-
   /*戻ってこない*/
-  move	$sp,$fp
+
+  /* 今後、多重割り込みに対応した時の為に、一応割り込みを禁止にする */
+  di
+
+  /*stall until execution hazards are cleared */
+  ehb
+
+  lw	$sp,0($a0)
+
+  /* restore STATUS from stack */
+  lw	$k0, 136($sp)
+  mtc0	$k0, $12
+
+  /* restore EPC from stack */
+  lw	$k0, 132($sp)
+  mtc0	$k0, $14
+  
+  /* restore hi from stack */
+  lw	$k0, 128($sp)
+  mthi	$k0
+  
+  /* restore lo from stack */
+  lw	$k0, 124($sp)
+  mtlo	$k0
 
   lw $31,120($sp)
   lw $30,116($sp)
-  lw $29,112($sp)
+  /*lw $29,112($sp)*/
   lw $28,108($sp)
   lw $27,104($sp)
   lw $26,100($sp)
@@ -104,56 +122,22 @@ sys_intr:
   lw $2,4($sp)
   lw $1,($sp)
 
-
-
-  di                      /* disable interrupts - just in case ? where enabled ? */
-  ehb
-
-  lw	$k0, 124($sp)
-  mtlo	$k0       /*lo*/
-
-  lw	$k0, 128($sp)
-  mthi	$k0       /*hi*/
-
-  lw	$k0, 132($sp)       /* restore EPC from stack */
-  mtc0	$k0, $14
-
-
-  lw	$k0, 136($sp)
-   /* restore stack pointer */
-  mtc0	$k0, $12
-
- addiu	$sp, $sp, 140
-
+  addiu	$sp, $sp, 140
 
   eret
   nop
 
 
-  .set noreorder
-  .global IRQ_intr
-  IRQ_intr:
-  rdpgpr  $sp, $sp
-  mfc0    $k0, $13        /* read CAUSE register */
-  mfc0    $k1, $14        /* read EPC (Exception Program Counter) register */
-  addiu   $sp, $sp, -140  /* 30 (!) words space on stack */
-  sw      $k1, 132($sp)   /* save EPC (Exception Program Counter) on stack */
-  mfc0    $k1, $12        /* read STATUS register */
-  srl     $k0, $k0, 10    /* align RIPL (Requested Priority Level bits) to bit 0 */
-  sw      $k1, 136($sp)   /* save STATUS on stack */
-
-  ins     $k1, $k0, 10, 6 /* insert RIPL (Requested Priority Level bits) to IPL field */
-  mflo    $k0
-  sw      $k0, 124($sp)
-
-  mfhi    $k0
-  sw      $k0, 128($sp)
-  ins     $k1, $0, 1, 4
-  mtc0    $k1, $12        /* write STATUS register */
+.section .text,"ax",@progbits
+.set noat
+.set noreorder
+.global _user_intr
+_user_intr:
+  addiu   $sp, $sp, -140  /* 35 words space on stack */
 
   sw $31,120($sp)
   sw $30,116($sp)
-  sw $29,112($sp)
+  /*sw $29,112($sp)*/
   sw $28,108($sp)
   sw $27,104($sp)
   sw $26,100($sp)
@@ -183,23 +167,59 @@ sys_intr:
   sw $2,4($sp)
   sw $1,($sp)
 
+  /* save lo on stack */
+  mflo    $k0
+  sw      $k0, 124($sp)
+
+  /* save hi on stack */
+  mfhi    $k0
+  sw      $k0, 128($sp)
+  
+  /* save EPC on stack */
+  mfc0    $k1, $14
+  sw      $k1, 132($sp)
+
+  /* save STATUS on stack */
+  mfc0    $k1, $12
+  sw      $k1, 136($sp)
+
   move	$fp,$sp
 
 	/*li $a0,SOFTVEC_EACH_TYPE*/
   move $a1,$sp
-
   la $sp, _intrstack
-
-
-
 	jal	interrupt
   nop
 
-  move	$sp,$fp
+  /*戻ってこない*/
+  
+  /* 今後、多重割り込みに対応した時の為に、一応割り込みを禁止にする */
+  di
+
+  /*stall until execution hazards are cleared */
+  ehb
+
+  lw	$sp,0($a0)
+
+  /* restore STATUS from stack */
+  lw	$k0, 136($sp)
+  mtc0	$k0, $12
+
+  /* restore EPC from stack */
+  lw	$k0, 132($sp)
+  mtc0	$k0, $14
+  
+  /* restore hi from stack */
+  lw	$k0, 128($sp)
+  mthi	$k0
+  
+  /* restore lo from stack */
+  lw	$k0, 124($sp)
+  mtlo	$k0
 
   lw $31,120($sp)
   lw $30,116($sp)
-  lw $29,112($sp)
+  /*lw $29,112($sp)*/
   lw $28,108($sp)
   lw $27,104($sp)
   lw $26,100($sp)
@@ -228,23 +248,6 @@ sys_intr:
   lw $3,8($sp)
   lw $2,4($sp)
   lw $1,($sp)
-
-  di                      /* disable interrupts - just in case ? where enabled ? */
-  ehb
-
-  lw	$k0, 124($sp)
-  mtlo	$k0       /*lo*/
-
-  lw	$k0, 128($sp)
-  mthi	$k0       /*hi*/
-
-  lw	$k0, 132($sp)       /* restore EPC from stack */
-  mtc0	$k0, $14
-
-
-  lw	$k0, 136($sp)
-   /* restore stack pointer */
-  mtc0	$k0, $12
 
   addiu	$sp, $sp, 140
 

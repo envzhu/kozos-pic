@@ -31,7 +31,7 @@ static void tmr_start(int index, kz_thread_id_t id, int msec)
 {
 	tmrbuf_t *p_tmrbuf = kz_kmalloc(sizeof(*p_tmrbuf));
 
-	#ifdef DEBUG
+	#ifdef DEBUG1
 		puts("timer ");
 		putdval(msec, 0);
     puts("msec start\n");
@@ -114,7 +114,7 @@ static inline void tmrdrv_intrproc(struct tmrdev_t *tmr)
 	do{
 		p_timerbuf->cn_msec--;
 		if(p_timerbuf->cn_msec == 0){
-			#ifdef DEBUG
+			#ifdef DEBUG1
         puts("thread id : ");
         putxval(p_timerbuf->id, 0);
 				puts(" timer expired\n");

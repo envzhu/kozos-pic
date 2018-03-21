@@ -32,7 +32,7 @@ static int init(void)
   extern int _data_start, _edata, _bss_start, _ebss, _text_start;
 
   /* Init BSS rigion */
-  memset(&_bss_start, 0, (uint32)&_text_start - (uint32)&_bss_start);
+  memset(&_bss_start, 0, (uint32)&_ebss - (uint32)&_bss_start);
 
   system_init();
 

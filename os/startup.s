@@ -6,13 +6,13 @@
 _start:
   /* set vector address */
   la $t1, _ebase_address
-  mtc0 $t1, $15, 1              # EBASE register points to interrupt vector table
+  mtc0 $t1, $15, 1        # EBASE register
 
   /* set vector spacing */
   la $t1, _vector_spacing
   li $t2, 0
   ins $t2, $t1, 5, 5
-  mtc0 $t2, $12, 1              # INTCTL register specifies vectors positions
+  mtc0 $t2, $12, 1        # INTCTL register
 
   la $sp, _bootstack
   j main
