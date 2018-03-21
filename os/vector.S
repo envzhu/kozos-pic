@@ -23,6 +23,16 @@ intr_cpu_err:
   nop
 
 
+.section .vector_8,"ax",@progbits
+.set noreorder
+  rdpgpr  $sp, $sp
+
+  sw $4,-128($sp)
+  li $a0,SOFTVEC_TYPE_TMRINTR
+  j _user_intr
+  nop
+
+
 .section .vector_37,"ax",@progbits
 .set noreorder
   rdpgpr  $sp, $sp

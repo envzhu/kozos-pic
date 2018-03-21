@@ -1,7 +1,8 @@
 #ifndef _ihex_H_INCLUDED_
 #define _ihex_H_INCLUDED_
 
-int ihex_decode(unsigned char c);
+void ihex_init(void);
+int ihex_decode(char *data_buf, int size);
 uint32 *ihex_startaddr(void);
 
 #endif

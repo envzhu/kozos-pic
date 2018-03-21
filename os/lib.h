@@ -1,6 +1,7 @@
 #ifndef _LIB_H_INCLUDED_
 #define _LIB_H_INCLUDED_
 
+int dump(char *buf, long size);	/* メモリの16進ダンプ出力 */
 void *memset(void *b, int c, long len);
 void *memcpy(void *dst, const void *src, long len);
 int memcmp(const void *b1, const void *b2, long len);
@@ -15,5 +16,7 @@ int puts(unsigned char *str); /* 文字列送信 */
 int gets(unsigned char *buf); /* 文字列受信 */
 int putxval(unsigned long value, int column); /* 数値の16進表示 */
 int putdval(unsigned long value, int column); /* 数値の10進表示 */
+
+int sleep_msec(unsigned int msec);/* msec 待つ */
 
 #endif

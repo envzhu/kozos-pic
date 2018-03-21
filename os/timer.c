@@ -98,7 +98,6 @@ int timer_start(int index){
   // 割込みの有効化
   ipc->IPCxSET = 0b11111;
   timer_expire(index);
-  timer_intr_enable(index);
   return 0;
 }
 
@@ -141,10 +140,9 @@ int timer_stop(int index)
 {
   volatile struct pic_timer *tmr = regs[index].tmr;
   
-  timer_expire(index);
-  timer_intr_disable(index);
-
   tmr->TxCONCLR = PIC_TIMER_TxCON_ON ;
+  timer_expire(index);
+
   return 0;
 }
 

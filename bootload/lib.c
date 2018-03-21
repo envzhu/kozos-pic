@@ -133,3 +133,26 @@ int putxval(unsigned long value, int column)
 
   return 0;
 }
+
+/* メモリの16進ダンプ出力 */
+static int dump(char *buf, long size)
+{
+  long i;
+
+  if (size < 0) {
+    puts("no data.\n");
+    return -1;
+  }
+  for (i = 0; i < size; i++) {
+    putxval(buf[i], 2);
+    if ((i & 0xf) == 15) {
+      puts("\n");
+    } else {
+      if ((i & 0xf) == 7) puts(" ");
+      puts(" ");
+    }
+  }
+  puts("\n");
+
+  return 0;
+}

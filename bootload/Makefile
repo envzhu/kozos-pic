@@ -19,7 +19,7 @@ PIC32PROG = pic32prog
 
 
 OBJS  = startup.o main.o hardware.o intr.o interrupt.o vector.o
-OBJS += lib.o serial.o xmodem.o ihex.o #elf.o
+OBJS += lib.o serial.o xmodem.o elf.o ihex.o
 
 TARGET = kzload
 
@@ -64,5 +64,6 @@ obj_clean :
 
 clean :
 		rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).hex
-line:
+
+line :
 		wc -l *.c *.h *.s *.S ld.scr Makefile

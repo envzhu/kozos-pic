@@ -39,7 +39,7 @@ static unsigned char getval(unsigned char **pp, unsigned char *sum)
   return val;
 }
 
-static int decode(char *from)
+static int decode_record(char *from)
 {
   uint16 i, j, record_len, record_type, record_addr, checksum, dummy, sum=0;
   unsigned char record_data[128];
@@ -81,7 +81,7 @@ static int decode(char *from)
   return 0;
 }
 
-int ihex_decode(unsigned char c)
+static inline int decode_data(unsigned char c)
 {
   static char ihex_buf[270];
   static int i = 0;
@@ -90,11 +90,19 @@ int ihex_decode(unsigned char c)
   if ((c == '\r') || (c == '\n')) {
     ihex_buf[--i] = '\0';
     i = 0;
-    if (decode(ihex_buf) != 0)
+    if (decode_record(ihex_buf) != 0)
       return 1;
   }
 
   return 0;
+}
+
+int ihex_decode(char *data_buf, int size)
+{
+  int i;
+  for(i = 0; i < size; i++){
+    decode_data(data_buf[i]);
+  }
 }
 
 uint32 *ihex_startaddr()

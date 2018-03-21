@@ -82,7 +82,7 @@ struct pic_uart {
 #define PIC_UART_UxSTA_URXTISEL_EVERY  (0<<6)
 #define PIC_UART_UxSTA_URXTISEL_THREE  (2<<6)
 #define PIC_UART_UxSTA_URXTISEL_FULL   (3<<6)
-#define PIC_UART_UxSTA_TRMT    (1<<8)
+#define PIC_UART_UxSTA_TRMT_TXBUF_is_EMPTY  (1<<8)
 #define PIC_UART_UxSTA_UTXBF   (1<<9)
 #define PIC_UART_UxSTA_UTXEN   (1<<10)
 #define PIC_UART_UxSTA_UTXBRK  (1<<11)
@@ -120,6 +120,12 @@ int serial_init(int index)
   if(!((index==0)|(index==1)))  return -1; 
 
   volatile struct pic_uart *uart = regs[index].uart;
+
+  /*
+  *  もしシリアルデバイスが送信中であれば、
+  *  送信が完了(送信バッファが空）になってから,初期化する
+  */
+  while (!(uart ->UxSTA & PIC_UART_UxSTA_TRMT_TXBUF_is_EMPTY));
 
   uart ->UxSTA   = 0x0;
   uart ->UxTXREG = 0x0;

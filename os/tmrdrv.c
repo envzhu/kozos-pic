@@ -11,73 +11,79 @@
 #define TMRDRV_CMD_START  's' /* タイマのスタート */
 #define TMRDRV_CMD_CANCEL 'c' /* タイマのキャンセル */
 
-typedef struct _tmrbuf {
-	struct _tmrbuf *prev;
-	struct _tmrbuf *next;
+typedef struct _tmrbuf_t {
+	struct _tmrbuf_t *prev;
+	struct _tmrbuf_t *next;
 	int index;
 	kz_thread_id_t id;
 	int cn_msec;
 	int buf_msec;
-}tmrbuf;
+}tmrbuf_t;
 
-static struct tmrreg {
-	tmrbuf *head;
-	tmrbuf *tail;
-} tmrreg[TMRDRV_DEVICE_NUM];
+static struct tmrdev_t {
+	tmrbuf_t *head;
+	tmrbuf_t *tail;
+} tmrdev[TMRDRV_DEVICE_NUM];
 
 
 
 static void tmr_start(int index, kz_thread_id_t id, int msec)
 {
-	putxval(msec, 0);
-	puts("\n");
-	tmrbuf *p_tmrbuf = kz_kmalloc(sizeof(*p_tmrbuf));
+	tmrbuf_t *p_tmrbuf = kz_kmalloc(sizeof(*p_tmrbuf));
+
+	#ifdef DEBUG1
+		puts("timer ");
+		putdval(msec, 0);
+    puts("msec start\n");
+	#endif
 
 	p_tmrbuf->index = index;
 	p_tmrbuf->id = id;
 	p_tmrbuf->cn_msec = msec;
 	p_tmrbuf->buf_msec = msec;
-	if(tmrreg[index].tail){
-		tmrreg[index].tail->next = p_tmrbuf;
-		p_tmrbuf->prev = tmrreg[index].tail;
-		}else{
+	if(tmrdev[index].tail){
+		tmrdev[index].tail->next = p_tmrbuf;
+		p_tmrbuf->prev = tmrdev[index].tail;
+	}else{
 		timer_start(index);
-		tmrreg[index].head = p_tmrbuf;
+    timer_intr_enable(index);
+		tmrdev[index].head = p_tmrbuf;
 	}
 	p_tmrbuf->next = NULL;
-	tmrreg[index].tail = p_tmrbuf;
+	tmrdev[index].tail = p_tmrbuf;
 }
 
-void tmr_stop(tmrbuf *p_timerbuf)
+void tmr_stop(tmrbuf_t*p_timerbuf)
 {
-	if(tmrreg[p_timerbuf->index].head == p_timerbuf){
+	if(tmrdev[p_timerbuf->index].head == p_timerbuf){
 		if(p_timerbuf->next == NULL){
 			timer_stop(p_timerbuf->index);
-			tmrreg[p_timerbuf->index].head = NULL;
-			tmrreg[p_timerbuf->index].tail = NULL;
+      timer_intr_disable(p_timerbuf->index);
+			tmrdev[p_timerbuf->index].head = NULL;
+			tmrdev[p_timerbuf->index].tail = NULL;
 		}else{
-			tmrreg[p_timerbuf->index].head = p_timerbuf->next;
-			tmrreg[p_timerbuf->index].head->prev = NULL;
+			tmrdev[p_timerbuf->index].head = p_timerbuf->next;
+			tmrdev[p_timerbuf->index].head->prev = NULL;
 		}
-	}else if(tmrreg[p_timerbuf->index].tail == p_timerbuf){
-		tmrreg[p_timerbuf->index].tail = p_timerbuf->prev;
-		tmrreg[p_timerbuf->index].tail->next=NULL;
+	}else if(tmrdev[p_timerbuf->index].tail == p_timerbuf){
+		tmrdev[p_timerbuf->index].tail = p_timerbuf->prev;
+		tmrdev[p_timerbuf->index].tail->next=NULL;
 	}else{
 		p_timerbuf->prev->next = p_timerbuf->next;
 		p_timerbuf->next->prev = p_timerbuf->prev;
 	}
-	kx_wakeup(p_timerbuf->id);
-	kx_kmfree(p_timerbuf);
+	kz_wakeup(p_timerbuf->id);
+	kz_kmfree(p_timerbuf);
 }
 
-static tmrbuf *tmrbuf_find(kz_thread_id_t id)
+static tmrbuf_t *tmrbuf_find(kz_thread_id_t id)
 {
 	int i;
-  struct tmrreg *tmr;
-	tmrbuf *p_timerbuf;
+  struct tmrdev_t *tmr;
+	tmrbuf_t*p_timerbuf;
 	
 	for (i = 0; i < TMRDRV_DEVICE_NUM; i++) {
-    tmr = &tmrreg[i];
+    tmr = &tmrdev[i];
     if (tmr->head) {
 			p_timerbuf = tmr->head;
 			do{
@@ -100,21 +106,23 @@ static tmrbuf *tmrbuf_find(kz_thread_id_t id)
  * また非コンテキスト状態で呼ばれるため，システム・コールは利用してはいけない．
  * (サービス・コールを利用すること)
  */
-static inline void tmrdrv_intrproc(struct tmrreg *tmr)
+static inline void tmrdrv_intrproc(struct tmrdev_t *tmr)
 {
-	tmrbuf *p_timerbuf;
-	p_timerbuf = tmr->head;
-
+	tmrbuf_t*p_timerbuf = tmr->head;
+  
 	timer_expire(p_timerbuf->index);
 	do{
 		p_timerbuf->cn_msec--;
-		if(p_timerbuf->cn_msec==0){
-			puts("tmrdrv_intrproc\n");
+		if(p_timerbuf->cn_msec == 0){
+			#ifdef DEBUG1
+        puts("thread id : ");
+        putxval(p_timerbuf->id, 0);
+				puts(" timer expired\n");
+			#endif
 			p_timerbuf->cn_msec = p_timerbuf->buf_msec;
-			puts("interval\n");
 			kx_wakeup(p_timerbuf->id);
 		}
-	}while((p_timerbuf->next == NULL) && (p_timerbuf = p_timerbuf->next));
+	}while((p_timerbuf->next != NULL) && (p_timerbuf = p_timerbuf->next));
 }
 
 
@@ -122,10 +130,10 @@ static inline void tmrdrv_intrproc(struct tmrreg *tmr)
 static void tmrdrv_intr(void)
 {
   int i;
-  struct tmrreg *tmr;
+  struct tmrdev_t *tmr;
 
   for (i = 0; i < TMRDRV_DEVICE_NUM; i++) {
-    tmr = &tmrreg[i];
+    tmr = &tmrdev[i];
     if (tmr->head) {
       if (timer_is_expired(i))
 	/* 割込みがあるならば，割込み処理を呼び出す */
@@ -136,16 +144,16 @@ static void tmrdrv_intr(void)
 
 static int tmrdrv_init(void)
 {
-  memset(tmrreg, 0, sizeof(*tmrreg));
+  memset(tmrdev, 0, sizeof(tmrdev));
   return 0;
 }
 
 /* スレッドからの要求を処理する */
-static int tmrdrv_command(int index, kz_thread_id_t id, int size, char *command)
+static int tmrdrv_command(int index, kz_thread_id_t id, int size, unsigned char *command)
 {
   switch (command[0]) {
 	case TMRDRV_CMD_START:
-		INTR_DISABLE;
+		INTR_DISABLE;//念のため、割り込み禁止
 		tmr_start(index, id, (command[1]<<24)|(command[2]<<16)|(command[3]<<8)|command[4]); /* タイマの開始 */
 		INTR_ENABLE;
 		break;
@@ -166,7 +174,7 @@ int tmrdrv_main(int argc, char *argv[])
 {
   int size, index;
   kz_thread_id_t id;
-  char *p;
+  unsigned char *p;
 
   tmrdrv_init();
 	kz_setintr(SOFTVEC_TYPE_TMRINTR, tmrdrv_intr); /* 割込みハンドラ設定 */
@@ -181,17 +189,15 @@ int tmrdrv_main(int argc, char *argv[])
   return 0;
 }
 
-void send_tmrset(int index, int msec){
-  char *p;
-	putxval(msec, 0);
-  p = kz_kmalloc(6);
+void send_tmrset(int index, unsigned int msec){
+  unsigned char *p = kz_kmalloc(6);
+
   p[0] = '0' + index;
   p[1] = TMRDRV_CMD_START;
   p[2] = msec>>24;
   p[3] = (msec>>16)&0xFF;
   p[4] = (msec>>8)&0xFF;
   p[5] = msec&0xFF;
-
   kz_send(MSGBOX_ID_TMRDRV, 6, p);
 }
 

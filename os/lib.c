@@ -1,7 +1,29 @@
 #include "defines.h"
 #include "serial.h"
+#include "timer.h"
 #include "lib.h"
 
+/* メモリの16進ダンプ出力 */
+int dump(char *buf, long size)
+{
+  long i;
+
+  if (size < 0) {
+    puts("no data.\n");
+    return -1;
+  }
+  for (i = 0; i < size; i++) {
+    putxval(buf[i], 2);
+    if ((i & 0xf) == 15) {
+      puts("\n");
+    } else {
+      if ((i & 0xf) == 7) puts(" ");
+      puts(" ");
+    }
+  }
+  puts("\n");
+  return 0;
+}
 void *memset(void *b, int c, long len)
 {
   char *p;
@@ -128,7 +150,7 @@ int putxval(unsigned long value, int column)
     value >>= 4;
     if (column) column--;
   }
-
+  puts("0x");
   puts(p + 1);
 
   return 0;
@@ -154,5 +176,17 @@ int putdval(unsigned long value, int column)
 
   puts(p + 1);
 
+  return 0;
+}
+
+
+int sleep_msec(unsigned int msec)
+{
+  timer_start(TMR_DEFAULT_DEVICE);
+  while(msec--){
+    while(!timer_is_expired(TMR_DEFAULT_DEVICE));
+    timer_expire(TMR_DEFAULT_DEVICE);
+  }
+  timer_stop(TMR_DEFAULT_DEVICE);
   return 0;
 }

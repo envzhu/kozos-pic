@@ -25,10 +25,9 @@ MEMORY
   
   ramall(rx)        : o = 0xA0000000, l = 0x10000 /* 64KB */
   softvec(rw)	      : o = 0xA0000000, l = 0x100   /* top of RAM */
-  data_mem (wx)     : o = 0xA0000100, l = 0xC00   /* data memory 3KB */
-  buffer(rwx)	      : o = 0xA0000D00, l = 0x7000  /* 28KB */
+  data_mem (wx)     : o = 0xA0000100, l = 0xF00   /* data memory 3.75KB */
   bootstack(rw)	    : o = 0xA0007FFC, l = 0x0
-  intrstack(rw)	    : o = 0xA0007FFC, l = 0x0     /* end of RAM */
+  intrstack(rw)	    : o = 0xA0007FFC, l = 0x0
 }
 
 
@@ -37,12 +36,10 @@ SECTIONS
   /*
    * PIC32 configuration bits.
    */
-  .devcfg : { 
-    KEEP(*(.devcfg3))
-    KEEP(*(.devcfg2))
-    KEEP(*(.devcfg1))
-    KEEP(*(.devcfg0))
-  } > config_mem
+  .devcfg : { KEEP(*(.devcfg3))
+              KEEP(*(.devcfg2))
+              KEEP(*(.devcfg1))
+              KEEP(*(.devcfg0)) } > config_mem
 
   .startup :
   {
@@ -53,8 +50,8 @@ SECTIONS
    * Interrupt vectors.
    * They are 64 small code segments in sequence.
    */
-   .vector_soft_intr _ebase_address + 0x180 :
-      { KEEP(*(.vector_soft_intr)) } > vectors_mem
+   .vector_general_exception _ebase_address + 0x180 :
+      { KEEP(*(.vector_general_exception)) } > vectors_mem
 
         .vector_0 _ebase_address + 0x200 :
         { KEEP(*(.vector_0)) } > vectors_mem
@@ -186,11 +183,11 @@ SECTIONS
         { KEEP(*(.vector_42)) } > vectors_mem
 
 
-	.text : {
-		_text_start = . ;
-		*(.text)
-		_etext = . ;
-	} > program_mem
+  	.text : {
+  		_text_start = . ;
+  		*(.text)
+  		_etext = . ;
+  	} > program_mem
 
 
   .rodata : {
@@ -200,12 +197,6 @@ SECTIONS
     *(.rodata.*)
     _erodata = . ;
   } > program_mem
-
-  . = ALIGN(4) ;
-
-  .buffer : {
-    buffer_start = . ;
-  } > buffer
 
 	.data : {
 		_data_start = . ;
