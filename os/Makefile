@@ -19,7 +19,7 @@ OBJS  = startup.o main.o hardware.o interrupt.o vector.o intr.o
 OBJS += lib.o serial.o timer.o
 
 # sources of kozos
-OBJS += kozos.o syscall.o memory.o consdrv.o command.o
+OBJS += kozos.o syscall.o memory.o consdrv.o tmrdrv.o command.o
 
 TARGET = kozos
 

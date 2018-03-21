@@ -6,7 +6,7 @@
 _vector_general_exception:
   rdpgpr  $sp, $sp
   sw $4,-128($sp)
-  
+
   sw $27,-40($sp)
   sw $26,-36($sp)
 
@@ -24,6 +24,18 @@ intr_cpu_err:
   j _kernel_intr
   nop
 .end _vector_general_exception
+
+.section .vector_8,"ax",@progbits
+.set noreorder
+.ent _vector_8
+_vector_8:
+  rdpgpr  $sp, $sp
+
+  sw $4,-128($sp)
+  li $a0,SOFTVEC_TYPE_TMRINTR
+  j _user_intr
+  nop
+.end _vector_8
 
 .section .vector_37,"ax",@progbits
 .set noreorder
