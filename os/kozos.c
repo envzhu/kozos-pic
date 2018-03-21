@@ -613,7 +613,7 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param)
 {
   current->syscall.type  = type;
   current->syscall.param = param;
-  asm volatile ("syscall"); /* トラップ割込み発行 */
+  asm volatile ("syscall"); /* システムコール発行 */
 }
 
 /* サービス・コール呼び出し用ライブラリ関数 */
