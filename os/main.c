@@ -39,7 +39,6 @@ static int init(void)
   return 0;
 }
 
-
 int main(void)
 {
   INTR_DISABLE; /* 割込み無効にする */

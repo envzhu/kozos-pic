@@ -1,6 +1,7 @@
 #ifndef _LIB_H_INCLUDED_
 #define _LIB_H_INCLUDED_
 
+int dump(char *buf, long size);	/* メモリの16進ダンプ出力 */
 void *memset(void *b, int c, long len);
 void *memcpy(void *dst, const void *src, long len);
 int memcmp(const void *b1, const void *b2, long len);
