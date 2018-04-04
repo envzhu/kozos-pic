@@ -4,7 +4,7 @@
 ## Overview
 This is a Embeded OS for PIC32MX270F256B based on Japanese "[KOZOS](http://kozos.jp/kozos/)" which is developped for learning and hobby.  
 This repositry consists of that bootloader and OS.
-This OS is developped with full scratch programing.
+This OS is developped with full scratch programing and bare metal programing.
 
 ### Bootloader
 `KZLOAD`(kozos boot loader) loads firmware on RAM memory by `XMODEM` transfer and execute that.  
@@ -27,6 +27,7 @@ I will upload this source code after several weeks.
 
 
 ## Requirement
+### Software
 - `mips-elf-gcc`  
 It may be possible to use `XC32-compiler` and `pinguino-compiler`.I don't have checked yet.  
 I installed with this command.  
@@ -40,8 +41,27 @@ Please use [this one](https://github.com/PinguinoIDE/pinguino-compilers) fixed t
 You can find `p32-objdump` in pinguino-compilers/(Your OS version)/p32/bin/ directory.  
 And rename to `mips-elf-gcc` or change Makefile.
 
-  
+- Terminal Emulator  
+	For example, `Tera Term` and `minicom`.  
+	- Setting
 
+|||
+|:-------|:-------|
+| Baud Rate | 9600 bps |
+| Data Length | 8bit |
+| Stop bit Length | 1bit |
+| parity | none |
+| Hardware Flow Contorl | none |
+| Software Flow Control | none |
+
+### Hardware
+- Target Board  
+![ブレッドボード図](PIC32_kozos_breadbord.png)
+KOZOS-PIC has been tested on PIC32MX270F256B.  
+So you need such the above board or the compatible board.  
+  
+- Serial conversion cable  
+ Of course, if your computer has a serial port, you don't need it.
 
 ## License
 KOZOS-PIC is released under MIT license.
