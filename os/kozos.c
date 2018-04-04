@@ -538,8 +538,23 @@ static void syscall_intr(void)
 
 static void softerr_intr(void)
 {
+  /* error_code equals CP0 Cause register's EXCODE bit */
+  int error_adr;
+  int error_cause;
+
+  asm volatile("mfc0 %0, $30" : "=r"(error_adr));
+  asm volatile("mfc0 %0, $13" : "=r"(error_cause));
+  error_cause >>= 2;
+  error_cause &= 0x1F;
+
   puts(current->name);
   puts(" DOWN.\n");
+  puts("Error Address : ");
+  putxval(error_adr,0);
+  puts("\nCause of Error : ");
+  putxval(error_cause, 0);
+  puts("\n");
+
   getcurrent(); /* レディーキューから外す */
   thread_exit(); /* スレッド終了する */
 }
