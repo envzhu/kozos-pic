@@ -3,11 +3,8 @@
 .section .vector_general_exception,"ax",@progbits
 .set noreorder
   rdpgpr  $sp, $sp
+  
   sw $4,-128($sp)
-
-  sw $27,-40($sp)
-  sw $26,-36($sp)
-
   mfc0  $k1, $13
   andi  $k0, $k1,(0x08 << 2)
   beq $k0,$0,intr_cpu_err

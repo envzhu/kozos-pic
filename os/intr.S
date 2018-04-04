@@ -11,8 +11,8 @@ _kernel_intr:
   sw $30,116($sp)
   /*sw $29,112($sp)*/
   sw $28,108($sp)
-  /*sw $27,104($sp)*/
-  /*sw $26,100($sp)*/
+  /* skip $27 */   /* $k0 and $k1 are reserved for OS kernel  */
+  /* skip $26 */   /* so we don't need to seve these register.*/
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)
@@ -77,8 +77,8 @@ _user_intr:
   sw $30,116($sp)
   /*sw $29,112($sp)*/
   sw $28,108($sp)
-  sw $27,104($sp)
-  sw $26,100($sp)
+  /* skip $27 */   /* $k0 and $k1 are reserved for OS kernel  */
+  /* skip $26 */   /* so we don't need to seve these register.*/
   sw $25,96($sp)
   sw $24,92($sp)
   sw $23,88($sp)

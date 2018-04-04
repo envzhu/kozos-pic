@@ -52,8 +52,8 @@ dispatch:
   lw $30,116($sp)
   /*lw $29,112($sp)*/
   lw $28,108($sp)
-  lw $27,104($sp)
-  lw $26,100($sp)
+  /* skip $27 */   /* $k0 and $k1 are reserved for OS kernel  */
+  /* skip $26 */   /* so we don't need to seve these register.*/
   lw $25,96($sp)
   lw $24,92($sp)
   lw $23,88($sp)
