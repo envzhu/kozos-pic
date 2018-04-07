@@ -37,7 +37,7 @@ LFLAGS = -static -T ld.scr -L.
 
 all :		$(TARGET) $(TARGET).hex
 
-$(TARGET) :	$(OBJS)
+$(TARGET) :	$(OBJS) Makefile ld.scr
 		$(CC) $(OBJS) -o $(TARGET) $(CFLAGS) $(LFLAGS)
 		cp $(TARGET) $(TARGET).elf
 		$(STRIP) $(TARGET)

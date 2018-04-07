@@ -63,8 +63,25 @@ So you need such the above board or the compatible board.
 - Serial conversion cable  
  Of course, if your computer has a serial port, you don't need it.
 
+## Build
+To build this OS, please run the following command.  
+```$ cd bootload ```  
+```$ make ```  
+```$ cd ../ ```   
+```$ cd os ```   
+```$ make ```  
+
+## Usage
+In your serial console,  please run the following command.  
+
+1. ``` kzload> load```  
+
+2. Send `os/kozos.hex`  by xmodem transfer.   
+  
+3. ``` kzload> run```  
+
 ## License
-KOZOS-PIC is released under MIT license.
+KOZOS-PIC is released under `MIT license`.
 
 ## Contact
 If you are find something wrong with this OS or my English, please tell me because I am beginner at programing and English.Of course, I welcome your quetions,too.  
@@ -72,7 +89,7 @@ Twitter : @envzhu
 
 ## 開発中
 　[ここ](https://github.com/envzhu/kozosbook-pic)で学習用組込みOS「[KOZOS](http://kozos.jp/kozos/)」をPIC(MIPS)に移植して、それを発展させたものです。
-ターゲットはPIC32MX270F256Bを想定しています。
+ターゲットは`PIC32MX270F256B`を想定しています。
 
 ## ブレッドボード図
 ![ブレッドボード図](PIC32_kozos_breadbord.png)

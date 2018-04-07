@@ -56,8 +56,6 @@ _kernel_intr:
   mfc0    $k1, $12
   sw      $k1, 136($sp)
 
-  move	$fp,$sp
-
 	/*li $a0,SOFTVEC_EACH_TYPE*/
   move $a1,$sp
   la $sp, _intrstack
@@ -120,8 +118,6 @@ _user_intr:
   /* save STATUS on stack */
   mfc0    $k1, $12
   sw      $k1, 136($sp)
-
-  move	$fp,$sp
 
 	/*li $a0,SOFTVEC_EACH_TYPE*/
   move $a1,$sp
