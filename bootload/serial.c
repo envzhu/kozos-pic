@@ -3,7 +3,7 @@
 
 #define SERIAL_UART_NUM 2
 
-#define PIC_UART1 ((volatile struct pic_uart *)0xBF806100)
+#define PIC_UART1 ((volatile struct pic_uart *)0xBF806000)
 #define PIC_UART2 ((volatile struct pic_uart *)0xBF806200)
 
 
